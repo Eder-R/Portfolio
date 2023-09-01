@@ -7,6 +7,10 @@
     - [3. Componente (Component)](#3-componente-component)
     - [4. Código (Code)](#4-código-code)
   - [Requisitos](#requisitos)
+  - [Caso de Uso](#caso-de-uso)
+    - [**Atores:**](#atores)
+    - [**Casos de Uso:**](#casos-de-uso)
+  - [Quadro Kamban](#quadro-kamban)
 
 ## C4
 
@@ -94,3 +98,49 @@
 
 - **Suporte Técnico e Treinamento:**
   - Fornecimento de suporte técnico e treinamento para a equipe da biblioteca.
+
+## Caso de Uso
+
+### **Atores:**
+
+1. **Usuário (Aluno/Professor/Funcionário):** Pessoas que utilizam o sistema para buscar, reservar e emprestar livros.
+
+2. **Bibliotecário:** Responsável pela administração do sistema, incluindo cadastro de livros, gerenciamento de empréstimos, devoluções e geração de relatórios.
+
+---
+
+### **Casos de Uso:**
+
+1. **Pesquisar Livros:**
+   - **Ator Principal:** Usuário
+   - **Descrição:** O usuário pode pesquisar livros no catálogo da biblioteca com base em critérios como título, autor, categoria, ISBN, etc.
+
+2. **Realizar Empréstimo:**
+   - **Ator Principal:** Usuário
+   - **Descrição:** O usuário pode solicitar empréstimo de livros disponíveis na biblioteca. O sistema registra o empréstimo e gera um recibo.
+
+3. **Realizar Devolução:**
+   - **Ator Principal:** Usuário
+   - **Descrição:** O usuário pode devolver os livros emprestados. O sistema atualiza o status do livro e calcula multas, se aplicável.
+
+4. **Reservar Livro:**
+   - **Ator Principal:** Usuário
+   - **Descrição:** O usuário pode reservar um livro que está atualmente emprestado por outro usuário. O sistema notifica o usuário quando o livro estiver disponível.
+
+5. **Cadastrar Livro:**
+   - **Ator Principal:** Bibliotecário
+   - **Descrição:** O bibliotecário pode cadastrar novos livros no sistema, incluindo informações como título, autor, ISBN, etc.
+
+6. **Gerar Relatórios:**
+   - **Ator Principal:** Bibliotecário
+   - **Descrição:** O bibliotecário pode gerar relatórios sobre o uso da biblioteca, como os livros mais emprestados, frequência de empréstimos, multas, etc.
+
+7. **Configurar Sistema:**
+   - **Ator Principal:** Bibliotecário
+   - **Descrição:** O bibliotecário pode personalizar as configurações do sistema, como prazos de empréstimo, políticas de multas, etc.
+
+8. **Autenticar Usuário:**
+   - **Ator Principal:** Sistema
+   - **Descrição:** O sistema autentica os usuários (alunos, professores, funcionários) para acessar funcionalidades restritas.
+
+## [Quadro Kamban](https://trello.com/invite/b/Ung8zIbd/ATTI4ccbb46809eb1a9209ccd043b5b8db3c1AE3E768/to-do)

@@ -14,6 +14,8 @@
 
 ## C4
 
+![Contexto e Container](assets/images/LibManager.svg "Nesta imagem podemos veros dois primeiros C's, Contexto (acima) e Container (abaixo)")
+
 ### 1. Contexto (Context)
 
 - **Nome:** LibManager
@@ -101,6 +103,8 @@
 
 ## Caso de Uso
 
+![Caso de Uso](assets/images/Caso%20de%20Uso.svg)
+
 ### **Atores:**
 
 1. **Usuário (Aluno/Professor/Funcionário):** Pessoas que utilizam o sistema para buscar, reservar e emprestar livros.
@@ -143,4 +147,6 @@
    - **Ator Principal:** Sistema
    - **Descrição:** O sistema autentica os usuários (alunos, professores, funcionários) para acessar funcionalidades restritas.
 
-## [Quadro Kamban](https://trello.com/invite/b/Ung8zIbd/ATTI4ccbb46809eb1a9209ccd043b5b8db3c1AE3E768/to-do)
+## Quadro Kamban
+
+[Clique aqui para acessar o quadro Kamban](https://trello.com/invite/b/Ung8zIbd/ATTI4ccbb46809eb1a9209ccd043b5b8db3c1AE3E768/to-do)

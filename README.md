@@ -35,7 +35,7 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
 
 ### 1. Contexto (Context)
 
-![Contexto e Container](assets/images/contexto.svg)
+![Contexto e Container](assets/images/Contexto.svg)
 
 - **Nome:** LibManager
 - **Objetivo:** Fornecer uma solução para gerenciar a coleção de livros de uma biblioteca escolar.
@@ -45,7 +45,7 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
 
 ### 2. Container (Contêiner)
 
-![Contexto e Container](assets/images/container.svg)
+![Contexto e Container](assets/images/Container.svg)
 
 - **Nome:** Aplicação da Biblioteca
   - **Tecnologias:** Programação web: JavaScript (Node.js);

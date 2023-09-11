@@ -1,7 +1,11 @@
 # LibManager
 
+## Indice
+
 - [LibManager](#libmanager)
-  - [C4](#c4)
+  - [Indice](#indice)
+  - [Definição do problema problema](#definição-do-problema-problema)
+  - [4C's](#4cs)
     - [1. Contexto (Context)](#1-contexto-context)
     - [2. Container (Contêiner)](#2-container-contêiner)
     - [3. Componente (Component)](#3-componente-component)
@@ -10,13 +14,28 @@
   - [Caso de Uso](#caso-de-uso)
     - [**Atores:**](#atores)
     - [**Casos de Uso:**](#casos-de-uso)
-  - [Quadro Kamban](#quadro-kamban)
+  - [Quadro Kambam](#quadro-kambam)
 
-## C4
+## Definição do problema problema
 
-![Contexto e Container](assets/images/LibManager.svg "Nesta imagem podemos veros dois primeiros C's, Contexto (acima) e Container (abaixo)")
+O problema com o gerenciamento atual da biblioteca de uma pequena escola é que ele não é eficiente. O sistema atual é baseado em planilhas e e-mails, o que torna difícil acompanhar os livros e outros materiais. Isso pode levar a problemas como livros perdidos ou danificados, multas não pagas e alunos que não conseguem encontrar os livros que precisam.
+
+Uma solução que foi encontrada para esse problema é criar um sistema web. Esse sistema permitiria aos alunos e professores pesquisar livros, verificar livros, pagar multas e muito mais. O sistema também poderia ser usado para gerar relatórios sobre o uso da biblioteca, o que ajudaria a escola a tomar decisões sobre quais livros comprar e como alocar recursos.
+
+O sistema web, seria uma solução eficiente para o problema. O sistema seria fácil de usar e manter, e ajudaria a escola a economizar tempo e dinheiro.
+
+Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma biblioteca escolar:
+
+- O sistema será fácil de usar e manter.
+- O sistema ajudará a escola a economizar tempo e dinheiro.
+- O sistema permitirá aos alunos e professores pesquisar livros, verificar livros, pagar multas e muito mais.
+- O sistema poderá ser usado para gerar relatórios sobre o uso da biblioteca, o que ajudaria a escola a tomar decisões sobre quais livros comprar e como alocar recursos.
+
+## 4C's
 
 ### 1. Contexto (Context)
+
+![Contexto e Container](assets/images/contexto.svg)
 
 - **Nome:** LibManager
 - **Objetivo:** Fornecer uma solução para gerenciar a coleção de livros de uma biblioteca escolar.
@@ -25,6 +44,8 @@
 ---
 
 ### 2. Container (Contêiner)
+
+![Contexto e Container](assets/images/container.svg)
 
 - **Nome:** Aplicação da Biblioteca
   - **Tecnologias:** Programação web: JavaScript (Node.js);
@@ -147,6 +168,6 @@
    - **Ator Principal:** Sistema
    - **Descrição:** O sistema autentica os usuários (alunos, professores, funcionários) para acessar funcionalidades restritas.
 
-## Quadro Kamban
+## Quadro Kambam
 
-[Clique aqui para acessar o quadro Kamban](https://trello.com/invite/b/Ung8zIbd/ATTI4ccbb46809eb1a9209ccd043b5b8db3c1AE3E768/to-do)
+[Clique aqui para acessar o quadro Kambam](https://trello.com/invite/b/Ung8zIbd/ATTI4ccbb46809eb1a9209ccd043b5b8db3c1AE3E768/to-do)

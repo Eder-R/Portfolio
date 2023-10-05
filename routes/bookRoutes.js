@@ -2,7 +2,7 @@ const router = require('express').Router()
 const Book = require('../models/Books')
 
 //CREATE
-router.post('/', async (req, res)=>{
+router.post('/books', async (req, res)=>{
   const {Nome, Autor, Genero} = req.body
   if(!Nome) {
     res.status(422).json({error:"Obrigatório o Nome do livro!"})
@@ -25,7 +25,7 @@ router.post('/', async (req, res)=>{
 
 //READ
 //findAll
-router.get('/', async (req, res) =>{
+router.get('/books', async (req, res) =>{
   try {
     const book = await Book.find()
 
@@ -36,7 +36,7 @@ router.get('/', async (req, res) =>{
   }
 })
 //findOne
-router.get('/:id', async (req, res) =>{
+router.get('/books/:id', async (req, res) =>{
   try {
     const id = req.params.id
     const book = await Book.findOne({ _id: id })

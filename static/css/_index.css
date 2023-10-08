@@ -1,0 +1,54 @@
+body, h1, h2, h3, h4, h5, h6 {
+  font-family: "Montserrat", "Droid Sans", sans-serif;
+  text-align: center;
+  color: #e4e4e4;
+  background: #6001f8;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+.w3-row-padding img {
+  margin-bottom: 12px
+}
+
+.w3-sidebar {
+  width: 120px;
+  background: #222;
+}
+
+.livro{
+  align-items: right;
+  /* text-align: right;  */
+}
+
+.red-background {
+  background-color: red;
+}
+
+.pagination{
+  justify-content: center;
+}
+
+#main {
+  margin-left: 120px
+}
+
+form{
+  text-align: center;
+  margin: 25px auto ;
+  width :37%;
+  padding:  9% 10% 10% 10%;
+  display: inline-block;
+  /* -webkit-border-radius: .5em;-moz-border-radius:.5em; */
+  overflow: hidden;
+  border: 1px solid black;
+
+}
+
+@media only screen and (max-width: 600px) {
+  #main {
+    margin-left: 0
+  }
+}

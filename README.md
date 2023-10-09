@@ -48,12 +48,12 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
 ![Contexto e Container](assets/images/Container.svg)
 
 - **Nome:** Aplicação da Biblioteca
-  - **Tecnologias:** Programação web: JavaScript (Node.js);
+  - **Tecnologias:** Programação web: Flask (Python);
 
   - **Responsabilidade:** Interface com o usuário, gerenciamento de pedidos, pesquisa de livros.
 
 - **Nome:** Banco de Dados
-  - **Tecnologia:** Banco de Dados MongoDB
+  - **Tecnologia:** Banco de Dados Postgress
   - **Responsabilidade:** Armazenamento de informações sobre livros, autores, usuários e transações.
 
 ---

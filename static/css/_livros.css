@@ -1,0 +1,469 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Montserrat", "Droid Sans", sans-serif;
+  text-align: center;
+  color: black;
+  background: #F2F3EB;
+  background-image: "https://drive.google.com/file/d/1NswXSy3plhjjQqK5hl0BOUBR9BNDCaSV/view?usp=drive_link";
+  /* background-image: url("https://64.media.tumblr.com/89b6ad18037e40af218263747e59a36f/c64596da686cfd2b-78/s1280x1920/0d971cc38e50a4033af2058cfefb08d2f5eb3e94.jpg"); */
+  background-color: #ffffff;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+.page-logo {
+  width: 140px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.alura-logo {
+  width: 40px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.container {
+  text-align: center;
+  padding: 30px;
+  padding-right: 0;
+}
+
+.page-title {
+  color: rgb(73, 73, 54);
+  margin: 20px 0 5px;
+  margin-left: 30%;
+  text-shadow: 2px 0 #ffffff, 0 2px #ffffff, 0 -2px #ffffff, -2px 0 #ffffff,
+    2px 2px #ffffff, -2px 2px #ffffff, 2px -2px #ffffff, -2px -2px #ffffff;
+}
+
+.page-subtitle {
+  margin-top: 5px;
+  margin-left: 30%;
+}
+
+p {
+  font-size: 17px;
+}
+
+.col-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.menu {
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.col-filmes p {
+  font-size: 14px;
+}
+
+.col-filmes img {
+  margin: 2.5px 5px;
+  height: 250px;
+  transition: 0.2s;
+}
+
+.col-filmes img:hover {
+  transform: scale(1.04);
+  box-shadow: 2px 2px 4px #0e1d2f;
+}
+
+.filmeNovo {
+  width: 100%;
+  display: flex;
+  flex-flow: wrap;
+  justify-content: center;
+}
+
+.filme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.legenda {
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  max-width: 160px;
+  padding: 3px 10px 20px;
+}
+
+input {
+  width: 250px;
+  margin: 4px;
+  padding: 6px;
+  border-radius: 5px;
+  border: 2px solid #e5e5e5;
+}
+
+#decresc,
+#cresc,
+#titulo {
+  width: 20px;
+  margin: 0;
+}
+
+.orden {
+  background-color: #ffffff;
+  border-radius: 15px;
+  border: 2px solid #e5e5e5;
+  max-width: 350px;
+  padding: 6px 10px;
+  text-align: left;
+  font-size: 0.8rem;
+}
+
+select {
+  width: 250px;
+  margin: 12px 4px 4px;
+  padding: 6px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  border: 2px solid #e5e5e5;
+}
+
+button {
+  border: 0;
+  color: #000000;
+  background: #ffffff;
+  font-weight: bold;
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  margin-top: 5px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #b0b0b0;
+}
+
+/* Posicionamento */
+.col-menu {
+  /* float: left; */
+  width: 30%;
+  position: fixed;
+  top: 20vh;
+  left: 25px;
+}
+
+.col-filmes {
+  float: left;
+  width: 69%;
+  margin-top: 10px;
+
+  margin-left: 30%;
+}
+
+/* Limpa os floats depois das colunas */
+.menu:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Coloca os campos do menu em colunas uma ao lado da outra */
+@media screen and (max-width: 960px) {
+  .col-menu {
+    width: 100%;
+    flex-direction: row;
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+
+  .menu {
+    float: left;
+    width: 45%;
+    padding: 5px 10px 5px;
+  }
+
+  .col-filmes {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .page-title,
+  .page-subtitle {
+    margin-left: 0;
+  }
+
+  select {
+    margin-top: 5px;
+  }
+
+  .orden {
+    margin-top: 20px;
+  }
+}
+
+/* Layout responsivo -> faz as colunas se empilharem em vez de ficar lado a lado quando a tela fica menor que certo tamanho (max-width) */
+@media screen and (max-width: 620px) {
+  .container {
+    padding-left: 0;
+  }
+
+  .col-menu {
+    flex-direction: column;
+  }
+
+  .menu {
+    width: 95%;
+  }
+
+  .orden {
+    margin-top: 0;
+  }
+}
+
+
+/* 
+@import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
+
+html {
+  font-family: 'Montserrat', Arial, sans-serif;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0.5em;
+  padding: 0.5em;
+  background: #F2F3EB;
+
+}
+
+h1 {
+  color: #474544;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 7px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+form {
+
+  margin: 50px 0;
+  padding: 37.5px;
+
+  border: 1px solid black;
+  text-align: center;
+}
+
+button {
+  overflow: visible;
+}
+
+button, select {
+  text-transform: none;
+}
+
+button, input, select, textarea {
+  color: #5A5A5A;
+  font: inherit;
+  margin: 0;
+}
+
+input {
+  line-height: normal;
+}
+
+textarea {
+  overflow: auto;
+}
+
+#container {
+  border: solid 3px #474544;
+  max-width: 768px;
+  margin: 60px auto;
+  position: relative;
+}
+
+.underline {
+  border-bottom: solid 2px #474544;
+  margin: -0.512em auto;
+  width: 80px;
+}
+
+.icon_wrapper {
+  margin: 50px auto 0;
+  width: 100%;
+}
+
+.icon {
+  display: block;
+  fill: #474544;
+  height: 50px;
+  margin: 0 auto;
+  width: 50px;
+}
+
+.email {
+	float: right;
+	width: 45%;
+}
+
+input[type='text'], [type='email'], select, textarea {
+	background: none;
+  border: none;
+	border-bottom: solid 2px #474544;
+	color: #474544;
+	font-size: 1.000em;
+  font-weight: 400;
+  letter-spacing: 1px;
+	margin: 0em 0 1.875em 0;
+	padding: 0 0 0.875em 0;
+  text-transform: uppercase;
+	width: 100%;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	-ms-transition: all 0.3s;
+	-o-transition: all 0.3s;
+	transition: all 0.3s;
+}
+
+input[type='text']:focus, [type='email']:focus, textarea:focus {
+	outline: none;
+	padding: 0 0 0.875em 0;
+}
+
+.message {
+	float: none;
+}
+
+.name {
+	float: left;
+	width: 45%;
+}
+
+select {
+  background: url('https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-ios7-arrow-down-32.png') no-repeat right;
+  outline: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+.subject {
+  width: 100%;
+}
+
+.telephone {
+  width: 100%;
+}
+
+textarea {
+	line-height: 150%;
+	height: 150px;
+	resize: none;
+  width: 100%;
+}
+
+::-webkit-input-placeholder {
+	color: #474544;
+}
+
+:-moz-placeholder { 
+	color: #474544;
+	opacity: 1;
+}
+
+::-moz-placeholder {
+	color: #474544;
+	opacity: 1;
+}
+
+:-ms-input-placeholder {
+	color: #474544;
+}
+
+#form_button {
+  background: none;
+  border: solid 2px #474544;
+  color: #474544;
+  cursor: pointer;
+  display: inline-block;
+  font-family: 'Helvetica', Arial, sans-serif;
+  font-size: 0.875em;
+  font-weight: bold;
+  outline: none;
+  padding: 20px 35px;
+  text-transform: uppercase;
+  -webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	-ms-transition: all 0.3s;
+	-o-transition: all 0.3s;
+	transition: all 0.3s;
+}
+
+#form_button:hover {
+  background: #474544;
+  color: #F2F3EB;
+}
+
+@media screen and (max-width: 768px) {
+  #container {
+    margin: 20px auto;
+    width: 95%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  h1 {
+    font-size: 26px;
+  }
+  
+  .underline {
+    width: 68px;
+  }
+  
+  #form_button {
+    padding: 15px 25px;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  h1 {
+    font-size: 18px;
+  }
+  
+  .icon {
+    height: 35px;
+    width: 35px;
+  }
+  
+  .underline {
+    width: 53px;
+  }
+  
+  input[type='text'], [type='email'], select, textarea {
+    font-size: 0.875em;
+  }
+} 
+*/

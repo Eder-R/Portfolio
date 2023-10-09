@@ -1,0 +1,56 @@
+.container {
+  width: 100%;
+  background: rgb(255,255,255); /* #fffff */
+}
+.buttons {
+  width: 869px;
+  margin: 0 auto;
+  background: rgb(255,255,255); /* #fffff */
+  padding: 25px;
+}
+h1 {
+  font-family:  'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-weight: 700;
+  color: #290050;
+  text-align: center;
+}
+span {
+  font-family: 'Grand Hotel', serif;
+  font-size: 40px;
+}
+
+/****** buttons' style starts here ******/
+.button {
+  display: inline-block;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: inherit;
+  border: 3px solid;
+  padding: 13px 85px;
+  margin: 20px; }
+.button:hover {
+  -webkit-transition: 200ms ease-in;
+     -moz-transition: 200ms ease-in;
+       -o-transition: 200ms ease-in;
+          transition: 200ms ease-in;
+        cursor: pointer;}
+
+.button2 {
+  background-color: rgb(52,168,200);
+  border-color: rgb(52,168,200);
+  color: rgb(255,255,255); }
+.button2:hover {
+  background-color: rgba(255,255,255,0);
+  border-color: rgb(52,168,200);
+  color: rgb(52,168,200); }
+
+.button3 {
+  background-color: rgba(255,255,255,0);
+  border-color: rgb(52,168,200);
+  color: rgb(52,168,200); }
+.button3:hover {
+  background-color: rgb(52,168,200);
+  border-color: rgb(52,168,200);
+  color: rgb(255,255,255); }
+  

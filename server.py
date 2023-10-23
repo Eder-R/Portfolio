@@ -45,7 +45,7 @@ def listar_livros():
         
     livros = query.offset(offset).limit(limit).all()
 
-    return render_template('_home-adm.html', livros=livros, page=page)
+    return render_template('_home-adm.html', livros=livros, page=page, limit=limit)
 
 def get_authors():
     '''Função para pegar todos os autores'''

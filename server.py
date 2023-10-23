@@ -17,7 +17,7 @@ db.init_app(app)
 
 @app.route('/', methods=['GET'])
 def listar_livros():
-    '''Listar livros conforme o filtro'''
+    '''Listar livros conforme o filtro'''    
     #----------------------------------------------------------
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=5, type=int)
@@ -45,7 +45,7 @@ def listar_livros():
         
     livros = query.offset(offset).limit(limit).all()
 
-    return render_template('_home-adm.html', livros=livros)
+    return render_template('_home-adm.html', livros=livros, page=page)
 
 def get_authors():
     '''Função para pegar todos os autores'''
@@ -69,6 +69,13 @@ def get_genres_route():
     genres = get_genres()
     return jsonify(genres=genres)
 
+@app.route('/get_books_count', methods=['GET'])
+def get_books_count():
+    '''Contagem de dados do banco'''
+    count = Livro.query.count()
+    return jsonify({'count': count})
+
+
 @app.route('/books')
 def index():
     ''' Mostrar Livros '''
@@ -79,11 +86,15 @@ def index():
 def add_book():
     ''' Adicionar livros '''
     if request.method == 'POST':
-        nome = request.form['nome']
+        nome = request.form['book-title']
         autor = request.form['autor']
         genero = request.form['genero']
         status = request.form['status']
-        
+        if request.form.get('status') == 'on':
+            status = True
+        else:
+            status = False
+            
         novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status)
         db.session.add(novo_livro)
         db.session.commit()
@@ -98,6 +109,7 @@ def edit_book(id):
         livro.nome = request.form['nome']
         livro.autor = request.form['autor']
         livro.genero = request.form['genero']
+        livro.status = request.form['status']
         db.session.commit()
         flash('Livro atualizado com sucesso')
         return redirect(url_for('index'))

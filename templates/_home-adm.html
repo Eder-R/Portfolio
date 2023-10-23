@@ -64,32 +64,30 @@
     <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="livros">
       <div class="livro-container">
         <h1>Livros</h1>
-        <table class="table table-striped table-bordered table-hover">
+        
+        <table id="my-table" class="table table-striped table-bordered table-hover">
           <thead>
             <tr>
-              <th scope="col-4">Nome</th>
-              <th scope="col-4">Autor</th>
-              <th scope="col-4">Genero</th>
-              <th scope="col-4">Emprestado</th>
+              <th scope="col">Capa</th>
+              <th scope="col">Nome</th>
+              <th scope="col">Autor</th>
+              <th scope="col">Genero</th>
+              <th scope="col">Emprestado</th>
             </tr>
           </thead>
-          <form action="/dashboard/books" method="GET" class="filter-form">
+          <form action="/" method="GET" class="filter-form">
             <div class="form-group">
-              <label for="genero">Gênero:</label>
               <select name="genero" class="form-control" id="generoSelect">
-                <option value="">Todos</option>
+                <option value="Genero">Genero</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="autor">autor:</label>
               <select name="autor" class="form-control" id="autorSelect">
-                <option value="">Todos</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="nome">Titulo:</label>
               <input type="text" name="nome" class="form-control" placeholder="Titulo">
             </div>
             <button type="submit" class="btn btn-primary">Filtrar</button>
@@ -98,13 +96,18 @@
             <!-- Exibir as receitas -->
             {% for livro in livros %}
             <tr>
-              <th scope="row">{{ livro.nome }}</th>
+              <th scope="row">{{ livro.capa }}</th>
+              <th>{{ livro.nome }}</th>
               <td>{{ livro.autor }}</td>
               <td>{{ livro.genero }}</td>
-              {% if livro.status == True %}
+              {% if livro.status %}
               <td class="red-background">{{ livro.status }}</td>
               {% else %}
+              {% if not livro.status %}
+              <td>Não</td>
+              {% else %}
               <td>{{ livro.status }}</td>
+              {% endif %}
               {% endif %}
             </tr>
             {% endfor %}
@@ -112,8 +115,14 @@
         </table>
       </div>
       <div class="pagination" id="pagination">
-        <button class="w3-button w3-light-grey w3-padding-large w3-section" id="prev-page">Página Anterior</button>
-        <button class="w3-button w3-light-grey w3-padding-large w3-section" id="next-page">Próxima Página</button>
+        <button class="w3-button w3-blue w3-padding-large w3-section" id="redirect-button">Cadastro de Livros</button>
+        {% if page > 1 %}
+        <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page-1, limit=limit) }}">Página Anterior</a>
+        {% endif %}
+
+        {% if livros|length == limit %}
+        <a href="{{ url_for('listar_livros', page=page+1, limit=limit) }}">Próxima Página</a>
+        {% endif %}
       </div>
     </div>
 
@@ -242,78 +251,7 @@
     integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
-    <script>
-      const limit = 10; // Número de registros por página
-      let currentPage = 1; // Página atual
-    
-      function loadBooks(page) {
-        $.ajax({
-          url: `/dashboard/books?page=${page}&limit=${limit}`, // Modifique a URL conforme necessário
-          method: 'GET',
-          success: function (data) {
-            // Atualize o conteúdo da div "livros-container" com os novos registros
-            $('#livros-container').html(data);
-          },
-          error: function (error) {
-            console.error(error);
-          },
-        });
-      }
-    
-      // Carregue os livros da primeira página quando a página carregar
-      loadBooks(currentPage);
-    
-      $('#prev-page').click(function () {
-        if (currentPage > 1) {
-          currentPage--;
-          loadBooks(currentPage);
-        }
-      });
-    
-      $('#next-page').click(function () {
-        // Você pode verificar se ainda há mais páginas a serem carregadas antes de avançar
-        currentPage++;
-        loadBooks(currentPage);
-      });
-      
-      /*FIM DE UM, INICIO DE OUTRO*/
-      
-      $(document).ready(function() {
-        $.ajax({
-            url: '/get_authors',  // Rota para obter os autores
-            type: 'GET',
-            success: function(data) {
-                $('#autorSelect').empty();  // Limpe as opções atuais
-                $('#autorSelect').append('<option value="">Todos</option>');  // Adicione a opção "Todos"
-                
-                // Preencha o <select> com os autores recebidos
-                for (var i = 0; i < data.authors.length; i++) {
-                    $('#autorSelect').append('<option value="' + data.authors[i] + '">' + data.authors[i] + '</option>');
-                }
-            }
-        });
-    });
-
-    /*FIM DE UM, INICIO DE OUTRO*/
-
-    $(document).ready(function() {
-      $.ajax({
-          url: '/get_genres',  // Rota para obter os gêneros
-          type: 'GET',
-          success: function(data) {
-              $('#generoSelect').empty();  // Limpe as opções atuais
-              $('#generoSelect').append('<option value="">Todos</option>');  // Adicione a opção "Todos"
-              
-              // Preencha o <select> com os gêneros recebidos
-              for (var i = 0; i < data.genres.length; i++) {
-                  $('#generoSelect').append('<option value="' + data.genres[i] + '">' + data.genres[i] + '</option>');
-              }
-          }
-      });
-  }); 
-
-    /*FIM DE UM, INICIO DE OUTRO*/
-    </script>
+  <script src="../static/scripts/_index.js"></script>
 </body>
 
 </html>

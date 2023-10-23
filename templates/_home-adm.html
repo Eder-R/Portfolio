@@ -116,13 +116,18 @@
       </div>
       <div class="pagination" id="pagination">
         <button class="w3-button w3-blue w3-padding-large w3-section" id="redirect-button">Cadastro de Livros</button>
-        {% if page > 1 %}
-        <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page-1, limit=limit) }}">Página Anterior</a>
-        {% endif %}
+        <form method="get" action="/">
+          <input type="hidden" name="page" value="{{ page - 1 }}">
+          <input type="hidden" name="limit" value="{{ limit }}">
+          <button type="submit" {% if page == 1 %}disabled{% endif %}>Página Anterior</button>
+        </form>
+        
+        <form method="get" action="/">
+          <input type="hidden" name="page" value="{{ page + 1 }}">
+          <input type="hidden" name="limit" value="{{ limit }}">
+          <button type="submit" {% if livros|length < limit %}disabled{% endif %}>Próxima Página</button>
+        </form>
 
-        {% if livros|length == limit %}
-        <a href="{{ url_for('listar_livros', page=page+1, limit=limit) }}">Próxima Página</a>
-        {% endif %}
       </div>
     </div>
 

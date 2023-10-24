@@ -119,13 +119,13 @@
         <form method="get" action="/">
           <input type="hidden" name="page" value="{{ page - 1 }}">
           <input type="hidden" name="limit" value="{{ limit }}">
-          <button type="submit" {% if page == 1 %}disabled{% endif %}>Página Anterior</button>
+          <button class="w3-button w3-blue w3-padding-large w3-section" type="submit" {% if page == 1 %}disabled{% endif %}>Página Anterior</button>
         </form>
         
         <form method="get" action="/">
           <input type="hidden" name="page" value="{{ page + 1 }}">
           <input type="hidden" name="limit" value="{{ limit }}">
-          <button type="submit" {% if livros|length < limit %}disabled{% endif %}>Próxima Página</button>
+          <button class="w3-button w3-blue w3-padding-large w3-section" type="submit" {% if livros|length < limit %}disabled{% endif %}>Próxima Página</button>
         </form>
 
       </div>

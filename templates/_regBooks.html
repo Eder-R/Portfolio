@@ -1,0 +1,32 @@
+<!-- Just make me the book registration form -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      integrity="sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/_index.css') }}">
+    
+    <title>Book Registration Form</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Registrar um livro</h1>
+      <form action="" method="post">
+        <label for="bookTitle">Titulo do livro:</label><br />
+        <input type="text" id="bookTitle" name="bookTitle"><br />
+        <label for="authorName">Nome do Autor:</label><br />
+        <input type="text" id="authorName" name="authorName"><br />
+        <label for="publisher">Editora:</label><br />
+        <select id="publisher" name="publisher">
+          <option value="Penguin Books">Penguin Books</option>
+          <option value="HarperCollins Publishers">HarperCollins Publishers</option>
+      </form>
+    </div>
+  </body>
+</html>

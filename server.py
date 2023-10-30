@@ -1,5 +1,5 @@
 '''Função principal para rodar o programa'''
-from sqlalchemy import func
+from sqlalchemy import func, text
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 from models.models import db, Livro
@@ -45,7 +45,7 @@ def listar_livros():
         
     livros = query.offset(offset).limit(limit).all()
 
-    return render_template('_home-adm.html', livros=livros, page=page, limit=limit)
+    return render_template('index.html', livros=livros, page=page, limit=limit)
 
 def get_authors():
     '''Função para pegar todos os autores'''
@@ -75,12 +75,11 @@ def get_books_count():
     count = Livro.query.count()
     return jsonify({'count': count})
 
-
 @app.route('/books')
 def index():
     ''' Mostrar Livros '''
     list_books = Livro.query.all()
-    return render_template('index.html', list_books=list_books)
+    return render_template('_regBooks.html', list_books=list_books)
 
 @app.route('/add_book', methods=['POST'])
 def add_book():

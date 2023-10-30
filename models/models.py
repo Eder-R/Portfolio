@@ -6,8 +6,7 @@ db = SQLAlchemy()
 class Livro(db.Model):
     '''Classe com o Model livros'''
     __tablename__ = 'livros'
-
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome = db.Column(db.String(255), nullable=False)
     autor = db.Column(db.String(255), nullable=False)
     genero = db.Column(db.String(255), nullable=False)

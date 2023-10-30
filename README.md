@@ -171,3 +171,27 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
 ## Quadro Kambam
 
 [Clique aqui para acessar o quadro Kambam](https://trello.com/invite/b/Ung8zIbd/ATTI4ccbb46809eb1a9209ccd043b5b8db3c1AE3E768/to-do)
+
+---
+
+## ToDo
+
+- [ ] Cadastro de Livros
+    - Ver com alguem se conseguimos saber o erro.
+- [ ] Cadastro de Clientes
+- [ ] CI/ CD
+    - Pedir para o ajuda para o Gillbert ajuda com isso.
+- [ ] Testes Unitários
+    - Pesquisando ainda, ver links compartilhados com Matheus Duarte
+- [ ] Consertar o arquivo README.md
+    - [ ] Inserir instruções de como utilizar;
+    - [ ] Inserir instruções de como contribuir;
+    - [ ] Reinserir as imagens dos que se perderam nos processos durante as atualições;
+    - [ ] Inserir informações de ajudantes;
+
+## Pesquisar mais a fundo
+
+Testes Unitarios: 
+    `https://medium.com/@otaviobn/tdd-com-flask-e-unittest-3f66036a240b`
+    
+Deploy real do projeto: `https://pythonbasics.org/deploy-flask-app/`, `https://medium.com/swlh/how-to-host-your-flask-app-on-pythonanywhere-for-free-df8486eb6a42`

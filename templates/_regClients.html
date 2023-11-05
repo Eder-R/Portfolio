@@ -12,32 +12,32 @@
 
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/_index.css') }}">
 
-  <title>LibManager | Cadastrar livros </title>
+  <title>LibManager | Cadastrar clientes </title>
 </head>
 
 <body class="w3-black">
 
   <div class="container">
-    <h1>Registrar livro</h1>
-    <form action="/add_book" method="POST" class="filter-form">
+    <h1>Registrar Clientes</h1>
+    <form action="/add_people" method="POST" class="filter-form">
       <div class="form-group">
-        <input type="text" name="book-title" class="form-control" placeholder="Titulo do Livro">
+        <input type="text" name="people-name" class="form-control" placeholder="Nome da pessoa">
       </div>
   
       <div class="form-group">
-        <input type="text" name="autor" class="form-control" placeholder="Autor">
+        <input type="text" name="sala" class="form-control" placeholder="Sala/Turma">
       </div>
   
       <div class="form-group">
-        <input type="text" name="genero" class="form-control" placeholder="Genero">
+        <input type="number" name="matricula" class="form-control" placeholder="matricula">
       </div>
   
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label for="status">Emprestado:</label>
         <input type="checkbox" name="status" id="status">
-      </div>
+      </div> -->
   
-      <button type="submit" class="btn btn-primary">Adicionar Livro</button>
+      <button type="submit" class="btn btn-primary">Cadastrar</button>
     </form>
   </div>
 

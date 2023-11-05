@@ -24,7 +24,9 @@ body, h1, h2, h3, h4, h5, h6 {
 }
 
 .red-background {
-  background-color: red;
+  background-color: red !important;
+  color: #e4e4e4 !important;
+  
 }
 
 .pagination{
@@ -35,6 +37,9 @@ body, h1, h2, h3, h4, h5, h6 {
   margin-left: 120px
 }
 
+a {
+  text-decoration: none
+}
 form{
   text-align: center;
   margin: 0.5rem ;

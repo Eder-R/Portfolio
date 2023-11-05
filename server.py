@@ -1,6 +1,7 @@
 '''Função principal para rodar o programa'''
 from sqlalchemy import func, text
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+import logging
 
 from models.models import db, Livro
 
@@ -15,42 +16,56 @@ DB_HOST = "localhost"
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
 db.init_app(app)
 
+# Configuração do logging
+logging.basicConfig(filename='logs\log.txt', level=logging.ERROR, format='%(asctime)s %(levelname)s %(name)s : %(message)s')
+
+
 @app.route('/', methods=['GET'])
 def listar_livros():
     '''Listar livros conforme o filtro'''    
     #----------------------------------------------------------
     page = request.args.get('page', default=1, type=int)
-    limit = request.args.get('limit', default=5, type=int)
-    
+    limit = request.args.get('limit', default=10, type=int) 
     # Cálculo do offset
     offset = (page - 1) * limit
 
     # Consulta ao banco de dados usando SQLAlchemy
     # ==========================================================
+    # Obtém os parâmetros de filtro do request
     genero_filtrado = request.args.get('genero', default=None, type=str)
     autor_filtrado = request.args.get('autor', default=None, type=str)
-    nome = request.args.get('nome', default=None, type=str)  # Mantenha como str
+    nome_filtrado = request.args.get('nome', default=None, type=str)
+    # Define o limite de registros por página
+    limit = 10
+    offset = (page - 1) * limit
 
     query = Livro.query
 
+    # Aplica os filtros na consulta conforme necessário
     if genero_filtrado:
         query = query.filter_by(genero=genero_filtrado)
 
     if autor_filtrado:
         query = query.filter_by(autor=autor_filtrado)
 
-    if nome:
-        query = query.filter(Livro.nome.like(f"%{nome}%"))  # Usar 'like' para buscar parte do nome
+    if nome_filtrado:
+        query = query.filter(Livro.nome.like(f"%{nome_filtrado}%"))
         
-        
-    livros = query.offset(offset).limit(limit).all()
+    # Ordena os resultados por nome (ordem alfabética)
+    query = query.order_by(Livro.nome).offset(offset).limit(limit)
 
-    return render_template('index.html', livros=livros, page=page, limit=limit)
+    # Obtém os resultados da consulta após aplicar os filtros e ordenação
+    livros = query.all()
+
+    autores = get_authors()
+
+    return render_template('index.html', livros=livros, page=page, limit=limit, autores=autores)
 
 def get_authors():
     '''Função para pegar todos os autores'''
     authors = db.session.query(Livro.autor).distinct().all()
-    return [author[0] for author in authors]
+    authors = sorted([author[0] for author in authors])
+    return authors
 
 def get_genres():
     '''Função para pegar todos os autores'''
@@ -75,11 +90,10 @@ def get_books_count():
     count = Livro.query.count()
     return jsonify({'count': count})
 
-@app.route('/books')
-def index():
-    ''' Mostrar Livros '''
-    list_books = Livro.query.all()
-    return render_template('_regBooks.html', list_books=list_books)
+@app.route('/cadastro_livros')
+def cadastro_livros():
+    '''rota para cadastro dos livros'''
+    return render_template('_regBooks.html')
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
@@ -88,17 +102,14 @@ def add_book():
         nome = request.form['book-title']
         autor = request.form['autor']
         genero = request.form['genero']
-        status = request.form['status']
-        if request.form.get('status') == 'on':
-            status = True
-        else:
-            status = False
-            
+        status = request.form.get('status') == 'on'  # Verifica o status
+
         novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status)
         db.session.add(novo_livro)
         db.session.commit()
-        flash('Livro adicionado com sucesso')
-        return redirect(url_for('index'))
+        print(f"ID do novo livro: {novo_livro.id}")  # Adicione esta linha para depuração
+
+        return redirect(url_for('cadastro_livros'))
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_book(id):

@@ -17,12 +17,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASS}@{DB_H
 db.init_app(app)
 
 # Configuração do logging
-logging.basicConfig(filename='logs\logs.log.txt', level=logging.ERROR, format='%(asctime)s %(levelname)s %(name)s : %(message)s')
+logging.basicConfig(filename='logs\\logs.log.txt', level=logging.ERROR, format='%(asctime)s %(levelname)s %(name)s : %(message)s')
 
 
 @app.route('/', methods=['GET'])
 def listar_livros():
-    '''Listar livros conforme o filtro'''    
+    '''Listar livros conforme o filtro'''
     #----------------------------------------------------------
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int) 

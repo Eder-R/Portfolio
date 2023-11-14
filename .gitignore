@@ -1,4 +1,6 @@
 __*
 .env
 .github
+.pytest*
 *.log.*
+

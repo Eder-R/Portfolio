@@ -1,31 +1,44 @@
-<!-- Clientes Section -->
-<div class="w3-content w3-justify w3-text-grey w3-padding-64 id=" clientes">
-  <div class="livro-container">
-    <h1>Registros</h1>
-    <!-- Grid for clients -->
-    <div class="w3-row-padding" style="margin:0 -16px">
-      <div class="w3-half">
-        Clientes cadastrados aqui!
-      </div>
-
-      <div class="w3-half">
-
-      </div>
-      <!-- End books grid -->
+<!-- Page Content -->
+<div class="w3-padding-large" id="main">
+  <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="clientes">
+    <div class="pessoa-container">
+      <h1>Pessoas</h1>
+      <table id="my-table" class="table table-striped table-bordered table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Nome</th>
+            <th scope="col">Sala</th>
+            <th scope="col">Matricula</th>
+            <th scope="col">Responsavel</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Exibir as pessoas -->
+          {% for pessoa in pessoas %}
+          <tr>
+            <th>{{ pessoa.nome }}</th>
+            <td>{{ pessoa.sala }}</td>
+            <td>{{ pessoa.matricula }}</td>
+            {% if pessoa.adm %}
+            <td class="red-background">Sim</td>
+            {% else %}
+            <td>Não</td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <!-- End Portfolio Section -->
+    <div class="pagination" id="pagination">
+
+      <button class="w3-button w3-blue w3-padding-large w3-section" id="redirect-button-plp">Cadastrar</button>
+
+      <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page-1) }}">Página Anterior</a>
+      <a class="w3-button w3-blue w3-padding-large w3-section"
+        href="{{ url_for('listar_livros', page=page+1) }}">Próxima Página</a>
+
+    </div>
   </div>
-  <!-- Bibliotecario Section -->
-  <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="funcionario">
-    <!-- <h2 class="w3-text-light-grey">Bibliotecarios</h2>
-  <hr style="width:200px" class="w3-opacity">
-  <p>{Listar managers aqui}</p>
+</div>
 
-  <button class="w3-button w3-light-grey w3-padding-large w3-section">
-    <i class="fa fa-download"></i> Exportar relatório
-  </button> -->
-
-  </div>
-
-  <!-- End About Section -->
 </div>

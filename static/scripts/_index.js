@@ -19,6 +19,10 @@ $(document).ready(function cadastrarLivro() {
     $("#redirect-button").click(function onRedirectButtonClick() {
         window.location.href = "/cadastro_livros";
     });
+
+    $("#redirect-button-plp").click(function onRedirectButtonClick() {
+        window.location.href = "/cadastro_pessoa";
+    });
 });
 
 $(document).ready(function paginacaoLivros() {

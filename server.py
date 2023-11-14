@@ -1,21 +1,26 @@
 '''Função principal para rodar o programa'''
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-import logging
-from logging.handlers import TimedRotatingFileHandler
 import os
+import logging
+from flask_migrate import Migrate
+from logging.handlers import TimedRotatingFileHandler
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
-from models.models import db, Livro, Pessoa
-
-app = Flask(__name__)
+from models.models import db, Livro, Pessoa, LivrosEmprestados
 
 DB_NAME = "LibManager"
 DB_USER = "eder3"
 DB_PASS = "adm"
 DB_HOST = "localhost"
 
+app = Flask(__name__)
 # Configurações do SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db.init_app(app)
+
+# Configuração do Flask-Migrate
+migrate = Migrate(app, db)
 
 log_dir = 'logs'  # Diretório onde os logs serão armazenados
 
@@ -201,4 +206,8 @@ def get_matriculas():
 
 
 if __name__ == "__main__":
+    with app.app_context():
+        # Importe e crie as tabelas
+        db.create_all()
+        print("Tabelas criadas com sucesso!")
     app.run(debug=True)

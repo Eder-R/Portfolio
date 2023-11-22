@@ -1,5 +1,8 @@
 '''Arquivo com os models carregados'''
+from datetime import datetime, timedelta
+
 from flask_sqlalchemy import SQLAlchemy
+
 
 db = SQLAlchemy()
 
@@ -11,6 +14,10 @@ class Livro(db.Model):
     autor = db.Column(db.String(255), nullable=False)
     genero = db.Column(db.String(255), nullable=False)
     status = db.Column(db.Boolean(), nullable=True)
+    emprestado_para = db.Column(db.String(255))  # Nova coluna
+
+    def __repr__(self):
+        return f"<Livro {self.id} - {self.nome}>"
 
 class Pessoa(db.Model):
     '''Classe com o Model para pessoas'''
@@ -29,6 +36,7 @@ class LivrosEmprestados(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     pessoa_id = db.Column(db.Integer, db.ForeignKey('pessoa.id'), nullable=False)
     livro_id = db.Column(db.Integer, db.ForeignKey('livros.id'), nullable=False)
+    data_devolucao = db.Column(db.DateTime, nullable=True, default=datetime.utcnow() + timedelta(days=7))
     
     pessoa = db.relationship('Pessoa', backref=db.backref('livros_emprestados', lazy=True))
     livro = db.relationship('Livro', backref=db.backref('livros_emprestados', lazy=True))

@@ -1,6 +1,10 @@
 __*
 .env
 .github
+.coverage
 .pytest*
 *.log.*
-
+htmlcov
+htmlcov/*
+tests
+tests/*

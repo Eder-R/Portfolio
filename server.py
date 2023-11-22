@@ -6,6 +6,7 @@ from logging.handlers import TimedRotatingFileHandler
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 from models.models import db, Livro, Pessoa, LivrosEmprestados
+from datetime import datetime
 
 DB_NAME = "LibManager"
 DB_USER = "eder3"
@@ -150,16 +151,16 @@ def add_book():
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_book(id):
-    ''' Editar livros'''
     livro = Livro.query.get(id)
     if request.method == 'POST':
         livro.nome = request.form['nome']
         livro.autor = request.form['autor']
         livro.genero = request.form['genero']
-        livro.status = request.form['status']
+        livro.status = request.form.get('status') == 'on'
+        livro.emprestado_para = request.form['emprestado_para'] if livro.status else None
         db.session.commit()
         flash('Livro atualizado com sucesso')
-        return redirect(url_for('index'))
+        return redirect(url_for('listar_livros'))
     return render_template('edit.html', livro=livro)
 
 @app.route('/delete/<int:id>', methods=['POST'])
@@ -204,10 +205,23 @@ def get_matriculas():
     matricula = [matricula[0] for matricula in matriculas]
     return matricula
 
+@app.route('/verificar_devolucao')
+def verificar_devolucao():
+    livros_emprestados = LivrosEmprestados.query.all()
+
+    for emprestimo in livros_emprestados:
+        if emprestimo.data_devolucao < datetime.utcnow():
+            # Livro está atrasado, atualizar o status
+            livro = Livro.query.get(emprestimo.livro_id)
+            livro.status = False  # Atualize conforme necessário
+
+    db.session.commit()
+
+    return "Verificação de devolução concluída com sucesso!"
 
 if __name__ == "__main__":
     with app.app_context():
         # Importe e crie as tabelas
         db.create_all()
         print("Tabelas criadas com sucesso!")
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')

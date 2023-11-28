@@ -1,0 +1,44 @@
+<!-- Page Content -->
+<div class="w3-padding-large" id="main">
+  <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="clientes">
+    <div class="pessoa-container">
+      <h1>Pessoas</h1>
+      <table id="my-table" class="table table-striped table-bordered table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Nome</th>
+            <th scope="col">Sala</th>
+            <th scope="col">Matricula</th>
+            <th scope="col">Responsavel</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Exibir as pessoas -->
+          {% for pessoa in pessoas %}
+          <tr>
+            <th>{{ pessoa.nome }}</th>
+            <td>{{ pessoa.sala }}</td>
+            <td>{{ pessoa.matricula }}</td>
+            {% if pessoa.adm %}
+            <td class="red-background">Sim</td>
+            {% else %}
+            <td>Não</td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination">
+
+      <button class="w3-button w3-blue w3-padding-large w3-section" id="redirect-button-plp">Cadastrar</button>
+
+      <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page-1) }}">Página Anterior</a>
+      <a class="w3-button w3-blue w3-padding-large w3-section"
+        href="{{ url_for('listar_livros', page=page+1) }}">Próxima Página</a>
+
+    </div>
+  </div>
+</div>
+
+</div>

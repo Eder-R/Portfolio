@@ -4,19 +4,14 @@
 
 - [LibManager](#libmanager)
   - [Indice](#indice)
-  - [Definição do problema problema](#definição-do-problema-problema)
-  - [4C's](#4cs)
-    - [1. Contexto (Context)](#1-contexto-context)
-    - [2. Container (Contêiner)](#2-container-contêiner)
-    - [3. Componente (Component)](#3-componente-component)
-    - [4. Código (Code)](#4-código-code)
+  - [Definição do problema](#definição-do-problema)
   - [Requisitos](#requisitos)
   - [Caso de Uso](#caso-de-uso)
     - [**Atores:**](#atores)
     - [**Casos de Uso:**](#casos-de-uso)
   - [Quadro Kambam](#quadro-kambam)
 
-## Definição do problema problema
+## Definição do problema
 
 O problema com o gerenciamento atual da biblioteca de uma pequena escola é que ele não é eficiente. O sistema atual é baseado em planilhas e e-mails, o que torna difícil acompanhar os livros e outros materiais. Isso pode levar a problemas como livros perdidos ou danificados, multas não pagas e alunos que não conseguem encontrar os livros que precisam.
 
@@ -31,61 +26,6 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
 - O sistema permitirá aos alunos e professores pesquisar livros, verificar livros, pagar multas e muito mais.
 - O sistema poderá ser usado para gerar relatórios sobre o uso da biblioteca, o que ajudaria a escola a tomar decisões sobre quais livros comprar e como alocar recursos.
 
-## 4C's
-
-### 1. Contexto (Context)
-
-![Contexto e Container](assets/images/Contexto.svg)
-
-- **Nome:** LibManager
-- **Objetivo:** Fornecer uma solução para gerenciar a coleção de livros de uma biblioteca escolar.
-- **Stakeholders:** Bibliotecários, usuários da biblioteca.
-
----
-
-### 2. Container (Contêiner)
-
-![Contexto e Container](assets/images/Container.svg)
-
-- **Nome:** Aplicação da Biblioteca
-  - **Tecnologias:** Programação web: Flask (Python);
-
-  - **Responsabilidade:** Interface com o usuário, gerenciamento de pedidos, pesquisa de livros.
-
-- **Nome:** Banco de Dados
-  - **Tecnologia:** Banco de Dados Postgress
-  - **Responsabilidade:** Armazenamento de informações sobre livros, autores, usuários e transações.
-
----
-
-### 3. Componente (Component)
-
-- **Nome:** Módulo de Autenticação
-  - **Responsabilidade:** Gerenciar autenticação de usuários (login/logout).
-
-- **Nome:** Módulo de Pesquisa
-  - **Responsabilidade:** Permitir aos usuários pesquisar livros por título, autor, gênero.
-
-- **Nome:** Módulo de Empréstimo
-  - **Responsabilidade:** Permitir aos usuários solicitar empréstimo de livros.
-
-- **Nome:** Módulo de Devolução
-  - **Responsabilidade:** Gerenciar a devolução de livros emprestados.
-
----
-
-### 4. Código (Code)
-
-- **Estrutura de Pacotes:**
-  - `lib_manager`
-    - `models\auth`: Contém classes relacionadas à autenticação.
-    - `models\research`: Contém classes relacionadas à pesquisa de livros.
-    - `models\loan`: Contém classes relacionadas ao empréstimo de livros.
-    - `models\return`: Contém classes relacionadas à devolução de livros.
-    - `models\books`: Contém classes de modelo para representar livros, autores, usuários, etc.
-    - `dbConfig`: Contém classes para acesso ao banco de dados.
-
----
 
 ## Requisitos
 

@@ -1,39 +1,30 @@
 '''Função principal para rodar o programa'''
 import os
 import logging
-from flask_migrate import Migrate
+from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
+from flask_migrate import Migrate
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 from models.models import db, Livro, Pessoa, LivrosEmprestados
-from datetime import datetime
-
-DB_NAME = "LibManager"
-DB_USER = "eder3"
-DB_PASS = "adm"
-DB_HOST = "localhost"
 
 app = Flask(__name__)
-# Configurações do SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db.init_app(app)
 
 # Configuração do Flask-Migrate
 migrate = Migrate(app, db)
 
-log_dir = 'logs'  # Diretório onde os logs serão armazenados
+LOG_DIR = 'logs'  # Diretório onde os logs serão armazenados
 
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
 
 # Configuração do logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
 # Configuração do manipulador de arquivos rotativos por tempo
-log_filename = os.path.join(log_dir, 'logs.log.txt')
+log_filename = os.path.join(LOG_DIR, 'logs.log.txt')
 file_handler = TimedRotatingFileHandler(log_filename, when='midnight', interval=1, backupCount=5)
 file_handler.setLevel(logging.ERROR)
 file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(name)s : %(message)s'))

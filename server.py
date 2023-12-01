@@ -6,9 +6,8 @@ from logging.handlers import TimedRotatingFileHandler
 from flask_migrate import Migrate
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
-from models.models import db, Livro, Pessoa, LivrosEmprestados
+from models.models import *
 
-app = Flask(__name__)
 db.init_app(app)
 
 # Configuração do Flask-Migrate

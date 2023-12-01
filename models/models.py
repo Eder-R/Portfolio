@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from flask_sqlalchemy import SQLAlchemy
 
-
+app = Flask(__name__)
 db = SQLAlchemy()
 
 DB_NAME = "LibManager"

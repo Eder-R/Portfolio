@@ -5,9 +5,10 @@ name: Python Tests
 
 on:
   push:
-    branches: [ "Dev" ]
+    branches: 
+      - main
   pull_request:
-    branches: [ "Dev" ]
+    types: [opened, synchronize, reopened]
 
 jobs:
   test:
@@ -33,16 +34,6 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-
-
-name: Build
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened]
-jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest

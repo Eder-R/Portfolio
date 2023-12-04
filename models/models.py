@@ -31,11 +31,11 @@ class Pessoa(db.Model):
 class LivrosEmprestados(db.Model):
     '''Classe com o Model para livros emprestados'''
     __tablename__ = 'livros_emprestados'
-    
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     pessoa_id = db.Column(db.Integer, db.ForeignKey('pessoa.id'), nullable=False)
     livro_id = db.Column(db.Integer, db.ForeignKey('livros.id'), nullable=False)
     data_devolucao = db.Column(db.DateTime, nullable=True, default=datetime.utcnow() + timedelta(days=7))
-    
+
     pessoa = db.relationship('Pessoa', backref=db.backref('livros_emprestados', lazy=True))
     livro = db.relationship('Livro', backref=db.backref('livros_emprestados', lazy=True))

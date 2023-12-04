@@ -16,7 +16,7 @@ DB_HOST = os.getenv("DB_HOST")
 DB_NAME = os.getenv("DB_NAME")
 
 # Configurações do SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://eder3:NHs68CK8jpryIdZGZoIq2KFb4QOHvNxA@dpg-cln0scj8772c73e3cmng-a/lib_manager'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -47,7 +47,7 @@ def listar_livros():
     '''Listar livros conforme o filtro'''
     #----------------------------------------------------------
     page = request.args.get('page', default=1, type=int)
-    limit = request.args.get('limit', default=10, type=int) 
+    limit = request.args.get('limit', default=10, type=int)
     # Cálculo do offset
     offset = (page - 1) * limit
 
@@ -57,7 +57,7 @@ def listar_livros():
     matricula_filtrado = request.args.get('matricula', default=None, type=int)
     sala_filtrado = request.args.get('sala', default=None, type=str)
     nome_filtrado = request.args.get('nome', default=None, type=str)
-    
+
     genero_filtrado = request.args.get('genero', default=None, type=str)
     autor_filtrado = request.args.get('autor', default=None, type=str)
     nome_filtrado = request.args.get('nome', default=None, type=str)
@@ -77,7 +77,7 @@ def listar_livros():
 
     if nome_filtrado:
         query = query.filter(Livro.nome.like(f"%{nome_filtrado}%"))
-        
+
     if matricula_filtrado:
         query = query.filter_by(matricula=matricula_filtrado)
 
@@ -86,7 +86,7 @@ def listar_livros():
 
     if nome_filtrado:
         query = query.filter(Pessoa.nome.like(f"%{nome_filtrado}%"))
-        
+
     # Ordena os resultados por nome (ordem alfabética)
     query = query.order_by(Livro.nome).offset(offset).limit(limit)
     query2 = query2.order_by(Pessoa.nome).offset(offset).limit(limit)

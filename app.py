@@ -202,7 +202,7 @@ def get_salas():
 
 def get_matriculas():
     '''Função para pegar todos os autores'''
-    matricula = db.session.query(Pessoa.matricula).distinct().all()
+    matriculas = db.session.query(Pessoa.matricula).distinct().all()
     matricula = [matricula[0] for matricula in matriculas]
     return matricula
 

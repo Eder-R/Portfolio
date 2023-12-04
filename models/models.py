@@ -3,17 +3,7 @@ from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 
-app = Flask(__name__)
 db = SQLAlchemy()
-
-DB_NAME = "LibManager"
-DB_USER = "eder3"
-DB_PASS = "adm"
-DB_HOST = "localhost"
-
-# Configurações do SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 class Livro(db.Model):
     '''Classe com o Model livros'''

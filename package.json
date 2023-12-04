@@ -1,7 +1,7 @@
 {
   "name": "portfolio",
   "version": "1.0.0",
-  "main": "server.py",
+  "main": "app.py",
   "repository": "git@github.com:Eder-R/Portfolio.git",
   "author": "Eder-R <eder31250@gmail.com>",
   "license": "MIT"

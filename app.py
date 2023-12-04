@@ -6,11 +6,21 @@ from logging.handlers import TimedRotatingFileHandler
 from flask_migrate import Migrate
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
-from models.models import *
+from models.models import db, Livro, LivrosEmprestados, Pessoa
 
-db.init_app(app)
+app = Flask(__name__)
+
+DB_NAME = "LibManager"
+DB_USER = "eder3"
+DB_PASS = "adm"
+DB_HOST = "localhost"
+
+# Configurações do SQLAlchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configuração do Flask-Migrate
+db.init_app(app)
 migrate = Migrate(app, db)
 
 LOG_DIR = 'logs'  # Diretório onde os logs serão armazenados

@@ -1,0 +1,20 @@
+services:
+  - name: web
+    env:
+      PYTHON_VERSION: 3.8
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -b 0.0.0.0:$PORT app:app
+    healthCheckPath: /  # Altere este caminho para corresponder ao seu endpoint de verificação de integridade
+
+databases:
+  - name: postgres
+    plan: data
+    env:
+      POSTGRES_DB: lib_manager
+      POSTGRES_USER: eder3
+      POSTGRES_PASSWORD: NHs68CK8jpryIdZGZoIq2KFb4QOHvNxA
+
+routes:
+  - path: /
+    service: web
+    checkPath: /  # Altere este caminho para corresponder ao seu endpoint de verificação de integridade

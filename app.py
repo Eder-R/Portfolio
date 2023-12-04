@@ -10,13 +10,14 @@ from models.models import db, Livro, LivrosEmprestados, Pessoa
 
 app = Flask(__name__)
 
-DB_NAME = "LibManager"
-DB_USER = "eder3"
-DB_PASS = "adm"
-DB_HOST = "localhost"
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
 
 # Configurações do SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://eder3:NHs68CK8jpryIdZGZoIq2KFb4QOHvNxA@dpg-cln0scj8772c73e3cmng-a/lib_manager'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configuração do Flask-Migrate

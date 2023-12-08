@@ -1,5 +1,4 @@
 __*
-.github
 .coverage
 .pytest*
 *.log.*

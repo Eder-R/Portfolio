@@ -9,15 +9,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from models.models import db, Livro, LivrosEmprestados, Pessoa
 
 app = Flask(__name__)
-
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-DB_HOST = os.getenv("DB_HOST")
-DB_NAME = os.getenv("DB_NAME")
-
 # Configurações do SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:ZxHOn9efBytwB8B4@db.ikklgrcyagvbhxngdgpd.supabase.co:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configuração do Flask-Migrate
@@ -220,9 +213,8 @@ def verificar_devolucao():
 
     return "Verificação de devolução concluída com sucesso!"
 
-if __name__ == "__main__":
-    with app.app_context():
-        # Importe e crie as tabelas
-        db.create_all()
-        print("Tabelas criadas com sucesso!")
-    app.run(debug=True, host='0.0.0.0')
+with app.app_context():
+    # Importe e crie as tabelas
+    db.create_all()
+    print("Tabelas criadas com sucesso!")
+app.run(debug=True, host='0.0.0.0')

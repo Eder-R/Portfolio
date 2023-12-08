@@ -9,7 +9,8 @@
   - [Caso de Uso](#caso-de-uso)
     - [**Atores:**](#atores)
     - [**Casos de Uso:**](#casos-de-uso)
-  - [Quadro Kambam](#quadro-kambam)
+  - [ToDo](#todo)
+  - [Pesquisar mais a fundo](#pesquisar-mais-a-fundo)
 
 ## Definição do problema
 
@@ -30,7 +31,7 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
 ## Requisitos
 
 - **Cadastro de Livros:**
-  - Cadastro de informações dos livros, incluindo título, autor, editora, ISBN, ano de publicação, número de exemplares, etc.
+  - Cadastro de informações dos livros, incluindo título, autor, editora.
 
 - **Cadastro de Usuários:**
   - Cadastro de alunos, professores e funcionários com informações pessoais, número de identificação, etc.
@@ -41,7 +42,7 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
   - Geração de recibos de empréstimos.
 
 - **Pesquisa e Catálogo:**
-  - Sistema de pesquisa que permite aos usuários buscar livros por título, autor, categoria, ISBN, etc.
+  - Sistema de pesquisa que permite aos usuários buscar livros por título, autor, categoria.
   - Exibição de informações detalhadas do livro, incluindo disponibilidade.
 
 - **Reservas de Livros:**
@@ -64,7 +65,7 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
 
 ## Caso de Uso
 
-![Caso de Uso](assets/images/Caso%20de%20Uso.svg)
+![Caso de Uso](.github/images/Caso_Uso.jpg)
 
 ### **Atores:**
 
@@ -108,25 +109,19 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
    - **Ator Principal:** Sistema
    - **Descrição:** O sistema autentica os usuários (alunos, professores, funcionários) para acessar funcionalidades restritas.
 
-## Quadro Kambam
-
-[Clique aqui para acessar o quadro Kambam](https://trello.com/invite/b/Ung8zIbd/ATTI4ccbb46809eb1a9209ccd043b5b8db3c1AE3E768/to-do)
-
 ---
 
 ## ToDo
 
-- [ ] Cadastro de Livros
+- [X] Cadastro de Livros
     - Ver com alguem se conseguimos saber o erro.
-- [ ] Cadastro de Clientes
-- [ ] CI/ CD
-    - Pedir para o ajuda para o Gillbert ajuda com isso.
-- [ ] Testes Unitários
-    - Pesquisando ainda, ver links compartilhados com Matheus Duarte
+- [X] Cadastro de Clientes
+- [X] CI/ CD
+- [X] Testes Unitários
 - [ ] Consertar o arquivo README.md
     - [ ] Inserir instruções de como utilizar;
     - [ ] Inserir instruções de como contribuir;
-    - [ ] Reinserir as imagens dos que se perderam nos processos durante as atualições;
+    - [X] Reinserir as imagens dos que se perderam nos processos durante as atualições;
     - [ ] Inserir informações de ajudantes;
 
 ## Pesquisar mais a fundo

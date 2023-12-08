@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 from models.models import db, Livro, LivrosEmprestados, Pessoa
-
+ 
 app = Flask(__name__)
 # Configurações do SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:ZxHOn9efBytwB8B4@db.ikklgrcyagvbhxngdgpd.supabase.co:5432/postgres'
@@ -213,8 +213,9 @@ def verificar_devolucao():
 
     return "Verificação de devolução concluída com sucesso!"
 
-with app.app_context():
-    # Importe e crie as tabelas
-    db.create_all()
-    print("Tabelas criadas com sucesso!")
-app.run(debug=True, host='0.0.0.0')
+if __name__ == "app":
+    with app.app_context():
+        # Importe e crie as tabelas
+        db.create_all()
+        print("Tabelas criadas com sucesso!")
+    # app.run(debug=True, host='0.0.0.0')

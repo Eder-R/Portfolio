@@ -1,4 +1,5 @@
-__*
+__LibManager
+__Py*
 .coverage
 .pytest*
 *.log.*

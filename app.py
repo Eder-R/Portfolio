@@ -5,6 +5,7 @@ from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from flask_migrate import Migrate
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from waitress import serve
 
 from models.models import db, Livro, LivrosEmprestados, Pessoa
  
@@ -213,9 +214,10 @@ def verificar_devolucao():
 
     return "Verificação de devolução concluída com sucesso!"
 
-if __name__ == "app":
+if __name__ == "__main__":
     with app.app_context():
         # Importe e crie as tabelas
         db.create_all()
         print("Tabelas criadas com sucesso!")
-    app.run(debug=True, host='0.0.0.0')
+
+    serve(app, host='0.0.0.0', port=5000)

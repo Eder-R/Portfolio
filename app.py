@@ -169,7 +169,7 @@ def delete_book(id):
 @app.route('/cadastro_pessoa')
 def cadastro_cliente():
     '''rota para cadastro das pessoas'''
-    return render_template('_regClients.html')
+    return render_template('index.html')
 
 @app.route('/add_people', methods=['POST'])
 def add_people():
@@ -218,4 +218,4 @@ if __name__ == "app":
         # Importe e crie as tabelas
         db.create_all()
         print("Tabelas criadas com sucesso!")
-    # app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')

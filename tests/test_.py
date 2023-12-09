@@ -31,9 +31,9 @@ class TestApp(TestCase):
 
     def test_add_book(self):
         response = self.client.post('/add_book', data={'book-title': 'Test Book', 'autor': 'Test Autor', 'genero': 'Test Genre'})
-        self.assertRedirects(response, '/cadastro_livros')
+        expected_location = '/cadastro_livros'
+        self.assertTrue(response.headers['Location'].endswith(expected_location), f"Expected redirect to {expected_location}, got {response.headers['Location']}")
 
-    # Adicione mais testes conforme necessário
 
 if __name__ == '__main__':
     unittest.main()

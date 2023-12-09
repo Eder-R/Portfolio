@@ -19,24 +19,20 @@ def client():
 
     yield client
 
-@pytest.mark.xfail
 def test_listar_livros_route(client):
     response = client.get('/')
     assert response.status_code == 200  # Verifica se a rota está acessível
     assert b'Listar livros conforme o filtro' in response.data  # Verifica se a página carrega corretamente
 
-@pytest.mark.xfail
 def test_get_authors_route(client):
     response = client.get('/get_authors')
     assert response.status_code == 200  # Verifica se a rota está acessível
     # Aqui você pode adicionar mais asserções para verificar se a resposta é válida
 
-@pytest.mark.xfail
 def test_cadastro_livros_route(client):
     response = client.get('/cadastro_livros')
     assert response.status_code == 200  # Verifica se a rota está acessível
 
-@pytest.mark.xfail
 def test_listar_livros(client):
     # Adicione um livro de exemplo ao banco de dados de teste
     with app.app_context():
@@ -55,7 +51,6 @@ def test_listar_livros(client):
     assert 'Autor Teste'.encode('utf-8') in response.data
     assert 'Gênero Teste'.encode('utf-8') in response.data
 
-@pytest.mark.xfail
 def test_add_book_route(client):
     response = client.post('/add_book', data={
         'book-title': 'Novo Livro',
@@ -67,7 +62,6 @@ def test_add_book_route(client):
     assert response.status_code == 200
     assert b'Novo Livro' in response.data
 
-@pytest.mark.xfail
 def test_edit_book_route(client):
     # Adiciona um livro de exemplo ao banco de dados de teste
     with app.app_context():
@@ -85,7 +79,6 @@ def test_edit_book_route(client):
     assert response.status_code == 200
     assert b'Livro Modificado' in response.data
 
-@pytest.mark.xfail
 def test_delete_book_route(client):
     # Adiciona um livro de exemplo ao banco de dados de teste
     with app.app_context():
@@ -98,18 +91,15 @@ def test_delete_book_route(client):
     assert response.status_code == 200
     assert b'Livro Teste' not in response.data
 
-@pytest.mark.xfail
 def test_get_books_count_route(client):
     response = client.get('/get_books_count')
     assert response.status_code == 200
     assert b'count' in response.data
 
-@pytest.mark.xfail
 def test_cadastro_pessoa_route(client):
     response = client.get('/cadastro_pessoa')
     assert response.status_code == 200
 
-@pytest.mark.xfail
 def test_add_people_route(client):
     response = client.post('/add_people', data={
         'people-name': 'Nova Pessoa',
@@ -121,7 +111,6 @@ def test_add_people_route(client):
     assert response.status_code == 200
     assert b'Nova Pessoa' in response.data
 
-@pytest.mark.xfail
 def test_unknown_route(client):
     response = client.get('/rota_inexistente')
     assert response.status_code == 404

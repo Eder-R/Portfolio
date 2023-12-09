@@ -1,6 +1,7 @@
 __LibManager
 __Py*
 .coverage
+.env
 .pytest*
 *.log.*
 htmlcov

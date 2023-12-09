@@ -6,12 +6,16 @@ from logging.handlers import TimedRotatingFileHandler
 from flask_migrate import Migrate
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from waitress import serve
+from dotenv import load_dotenv
 
 from models.models import db, Livro, LivrosEmprestados, Pessoa
+
+
  
+load_dotenv()
 app = Flask(__name__)
 # Configurações do SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:ZxHOn9efBytwB8B4@db.ikklgrcyagvbhxngdgpd.supabase.co:5432/postgres'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configuração do Flask-Migrate

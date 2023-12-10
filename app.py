@@ -10,7 +10,9 @@ from dotenv import load_dotenv
 
 from models.models import db, Livro, LivrosEmprestados, Pessoa
 
-
+# Imprima o valor da variável de ambiente para depuração
+database_url = os.environ.get('DATABASE_URL')
+print(f"DATABASE_URL: {database_url}")
  
 load_dotenv()
 app = Flask(__name__)

@@ -1,6 +1,7 @@
 '''Função principal para rodar o programa'''
 import os
 import logging
+import psycopg2
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from flask_migrate import Migrate
@@ -13,6 +14,17 @@ from models.models import db, Livro, LivrosEmprestados, Pessoa
 # Imprima o valor da variável de ambiente para depuração
 database_url = os.environ.get('DATABASE_URL')
 print(f"DATABASE_URL: {database_url}")
+
+host = os.environ.get('HOST', '127.0.0.1')
+port = int(os.environ.get('PORT', 5000))
+
+# Configurações do banco de dados
+db_config = {
+    'host': os.environ.get('DB_HOST'),
+    'database': os.environ.get('DB_NAME'),
+    'user': os.environ.get('DB_USER'),
+    'password': os.environ.get('DB_PSWD')
+}
  
 load_dotenv()
 app = Flask(__name__)
@@ -150,19 +162,29 @@ def add_book():
 
         return redirect(url_for('cadastro_livros'))
 
-@app.route('/edit/<int:id>', methods=['GET', 'POST'])
-def edit_book(id):
-    livro = Livro.query.get(id)
-    if request.method == 'POST':
-        livro.nome = request.form['nome']
-        livro.autor = request.form['autor']
-        livro.genero = request.form['genero']
-        livro.status = request.form.get('status') == 'on'
-        livro.emprestado_para = request.form['emprestado_para'] if livro.status else None
+
+@app.route('/edit_book', methods=['POST'])
+def edit_book():
+    try:
+        # Obter os dados do formulário
+        dados_livro = request.json
+
+        # Consultar o livro no banco de dados
+        livro = Livro.query.get(dados_livro['id'])
+
+        # Atualizar os dados do livro
+        livro.nome = dados_livro['nome']
+        livro.autor = dados_livro['autor']
+        livro.genero = dados_livro['genero']
+        livro.status = dados_livro['status']
+
+        # Commit das alterações no banco de dados
         db.session.commit()
-        flash('Livro atualizado com sucesso')
-        return redirect(url_for('listar_livros'))
-    return render_template('edit.html', livro=livro)
+
+        return jsonify({'status': 'success', 'message': 'Dados do livro alterados com sucesso!'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
 
 @app.route('/delete/<int:id>', methods=['POST'])
 def delete_book(id):
@@ -176,7 +198,7 @@ def delete_book(id):
 @app.route('/cadastro_pessoa')
 def cadastro_cliente():
     '''rota para cadastro das pessoas'''
-    return render_template('index.html')
+    return render_template('_regClients.html')
 
 @app.route('/add_people', methods=['POST'])
 def add_people():
@@ -225,5 +247,6 @@ if __name__ == "__main__":
         # Importe e crie as tabelas
         db.create_all()
         print("Tabelas criadas com sucesso!")
+        print(f"Servidor rodando em http://{host}:{port}")
 
     serve(app, host='0.0.0.0', port=5000)

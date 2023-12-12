@@ -144,3 +144,36 @@ $(document).ready(function buscarCapaLivro() {
         });
     });
 });
+
+function edit_book() {
+    // Obter os valores do formulário
+    var nomeLivro = document.getElementById('nomeLivro').value;
+    var autorLivro = document.getElementById('autorLivro').value;
+    var generoLivro = document.getElementById('generoLivro').value;
+    var statusLivro = document.getElementById('statusLivro').value;
+
+    // Exemplo de dados do livro (id é apenas um exemplo, você precisará obter o ID real do livro)
+    var dadosLivro = {
+        id: 1, // Substitua pelo ID real do livro
+        nome: nomeLivro,
+        autor: autorLivro,
+        genero: generoLivro,
+        status: statusLivro === 'true' // Convertendo para booleano
+    };
+
+    // Enviar dados para o servidor Flask usando AJAX
+    fetch('/alterar_dados_livro', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dadosLivro),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Resposta do servidor:', data);
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+    });
+}

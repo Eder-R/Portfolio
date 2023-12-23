@@ -1,38 +1,22 @@
 '''Função principal para rodar o programa'''
 import os
 import logging
-import psycopg2
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from flask_migrate import Migrate
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from waitress import serve
-from dotenv import load_dotenv
-
-from models.models import db, Livro, LivrosEmprestados, Pessoa
-
-# Imprima o valor da variável de ambiente para depuração
-database_url = os.environ.get('DATABASE_URL')
-print(f"DATABASE_URL: {database_url}")
+from models.models import Livro, LivrosEmprestados, Pessoa, db
 
 host = os.environ.get('HOST', '127.0.0.1')
 port = int(os.environ.get('PORT', 5000))
 
-# Configurações do banco de dados
-db_config = {
-    'host': os.environ.get('DB_HOST'),
-    'database': os.environ.get('DB_NAME'),
-    'user': os.environ.get('DB_USER'),
-    'password': os.environ.get('DB_PSWD')
-}
- 
-load_dotenv()
 app = Flask(__name__)
-# Configurações do SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Configuração do Flask-Migrate
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.abspath('./database/LibManager.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
@@ -47,9 +31,11 @@ logger.setLevel(logging.ERROR)
 
 # Configuração do manipulador de arquivos rotativos por tempo
 log_filename = os.path.join(LOG_DIR, 'logs.log.txt')
-file_handler = TimedRotatingFileHandler(log_filename, when='midnight', interval=1, backupCount=5)
+file_handler = TimedRotatingFileHandler(
+    log_filename, when='midnight', interval=1, backupCount=5)
 file_handler.setLevel(logging.ERROR)
-file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(name)s : %(message)s'))
+file_handler.setFormatter(logging.Formatter(
+    '%(asctime)s %(levelname)s %(name)s : %(message)s'))
 
 # Adiciona o manipulador ao logger
 logger.addHandler(file_handler)
@@ -57,7 +43,7 @@ logger.addHandler(file_handler)
 @app.route('/', methods=['GET'])
 def listar_livros():
     '''Listar livros conforme o filtro'''
-    #----------------------------------------------------------
+    # ----------------------------------------------------------
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
     # Cálculo do offset
@@ -68,40 +54,17 @@ def listar_livros():
     # Obtém os parâmetros de filtro do request
     matricula_filtrado = request.args.get('matricula', default=None, type=int)
     sala_filtrado = request.args.get('sala', default=None, type=str)
-    nome_filtrado = request.args.get('nome', default=None, type=str)
-
+    nome_filtrado_livro = request.args.get('nome_livro', default=None, type=str)
     genero_filtrado = request.args.get('genero', default=None, type=str)
     autor_filtrado = request.args.get('autor', default=None, type=str)
-    nome_filtrado = request.args.get('nome', default=None, type=str)
+    nome_filtrado_pessoa = request.args.get('nome_pessoa', default=None, type=str)
+
     # Define o limite de registros por página
     limit = 10
-    offset = (page - 1) * limit
 
-    query = Livro.query
-    query2 = Pessoa.query
-
-    # Aplica os filtros na consulta conforme necessário
-    if genero_filtrado:
-        query = query.filter_by(genero=genero_filtrado)
-
-    if autor_filtrado:
-        query = query.filter_by(autor=autor_filtrado)
-
-    if nome_filtrado:
-        query = query.filter(Livro.nome.like(f"%{nome_filtrado}%"))
-
-    if matricula_filtrado:
-        query = query.filter_by(matricula=matricula_filtrado)
-
-    if sala_filtrado:
-        query = query.filter_by(sala=sala_filtrado)
-
-    if nome_filtrado:
-        query = query.filter(Pessoa.nome.like(f"%{nome_filtrado}%"))
-
-    # Ordena os resultados por nome (ordem alfabética)
-    query = query.order_by(Livro.nome).offset(offset).limit(limit)
-    query2 = query2.order_by(Pessoa.nome).offset(offset).limit(limit)
+    # Organize a lógica de consulta em funções separadas
+    query = build_livro_query(matricula_filtrado, sala_filtrado, nome_filtrado_livro, genero_filtrado, autor_filtrado, offset, limit)
+    query2 = build_pessoa_query(nome_filtrado_pessoa, offset, limit)
 
     # Obtém os resultados da consulta após aplicar os filtros e ordenação
     livros = query.all()
@@ -110,7 +73,11 @@ def listar_livros():
     autores = get_authors()
     salas = get_salas()
 
-    return render_template('index.html', livros=livros, page=page, limit=limit, autores=autores, pessoas=pessoas, salas=salas)
+    return render_template('index.html', livros=livros,
+                           page=page, limit=limit,
+                           autores=autores, pessoas=pessoas,
+                           salas=salas
+                           )
 
 def get_authors():
     '''Função para pegar todos os autores'''
@@ -122,6 +89,38 @@ def get_genres():
     '''Função para pegar todos os autores'''
     genres = db.session.query(Livro.genero).distinct().all()
     return [genre[0] for genre in genres]
+
+def build_livro_query(matricula_filtrado, sala_filtrado, nome_filtrado_livro, genero_filtrado, autor_filtrado, offset, limit):
+    query = Livro.query.join(LivrosEmprestados, LivrosEmprestados.livro_id == Livro.id, isouter=True).filter(
+        LivrosEmprestados.data_devolucao.is_(None) | (LivrosEmprestados.data_devolucao >= datetime.utcnow())
+    )
+
+    if genero_filtrado:
+        query = query.filter_by(genero=genero_filtrado)
+
+    if autor_filtrado:
+        query = query.filter_by(autor=autor_filtrado)
+
+    if nome_filtrado_livro:
+        query = query.filter(Livro.nome.like(f"%{nome_filtrado_livro}%"))
+
+    if matricula_filtrado:
+        query = query.filter_by(matricula=matricula_filtrado)
+
+    if sala_filtrado:
+        query = query.filter_by(sala=sala_filtrado)
+
+    return query.order_by(Livro.nome).offset(offset).limit(limit)
+
+127.0.0.1 - - [23/Dec/2023 10:03:10] "GET / HTTP/1.1" 500 -
+
+def build_pessoa_query(nome_filtrado_pessoa, offset, limit):
+    query = Pessoa.query
+
+    if nome_filtrado_pessoa:
+        query = query.filter(Pessoa.nome.like(f"%{nome_filtrado_pessoa}%"))
+
+    return query.order_by(Pessoa.nome).offset(offset).limit(limit)
 
 @app.route('/get_authors', methods=['GET'])
 def get_authors_route():
@@ -155,10 +154,12 @@ def add_book():
         genero = request.form['genero']
         status = request.form.get('status') == 'on'  # Verifica o status
 
-        novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status)
+        novo_livro = Livro(nome=nome, autor=autor,
+                           genero=genero, status=status)
         db.session.add(novo_livro)
         db.session.commit()
-        print(f"ID do novo livro: {novo_livro.id}")  # Adicione esta linha para depuração
+        # Adicione esta linha para depuração
+        print(f"ID do novo livro: {novo_livro.id}")
 
         return redirect(url_for('cadastro_livros'))
 
@@ -195,10 +196,12 @@ def delete_book(id):
     flash('Livro apagado com sucesso')
     return redirect(url_for('index'))
 
+
 @app.route('/cadastro_pessoa')
 def cadastro_cliente():
     '''rota para cadastro das pessoas'''
     return render_template('_regClients.html')
+
 
 @app.route('/add_people', methods=['POST'])
 def add_people():
@@ -209,12 +212,15 @@ def add_people():
         matricula = request.form['matricula']
         adm = request.form.get('adm') == 'on'  # Verifica o status
 
-        nova_pessoa = Pessoa(nome=nome, sala=sala, matricula=matricula, adm=adm)
+        nova_pessoa = Pessoa(nome=nome, sala=sala,
+                             matricula=matricula, adm=adm)
         db.session.add(nova_pessoa)
         db.session.commit()
-        print(f"ID da pessoa: {nova_pessoa.id}")  # Adicione esta linha para depuração
+        # Adicione esta linha para depuração
+        print(f"ID da pessoa: {nova_pessoa.id}")
 
         return redirect(url_for('cadastro_cliente'))
+
 
 def get_salas():
     '''Função para pegar todos os autores'''
@@ -222,11 +228,13 @@ def get_salas():
     sala = sorted([sala[0] for sala in salas])
     return sala
 
+
 def get_matriculas():
     '''Função para pegar todos os autores'''
     matriculas = db.session.query(Pessoa.matricula).distinct().all()
     matricula = [matricula[0] for matricula in matriculas]
     return matricula
+
 
 @app.route('/verificar_devolucao')
 def verificar_devolucao():
@@ -242,11 +250,7 @@ def verificar_devolucao():
 
     return "Verificação de devolução concluída com sucesso!"
 
-if __name__ == "__main__":
-    with app.app_context():
-        # Importe e crie as tabelas
-        db.create_all()
-        print("Tabelas criadas com sucesso!")
-        print(f"Servidor rodando em http://{host}:{port}")
 
+if __name__ == "__main__":
+    print(f"Servidor rodando em http://{host}:{port}")
     serve(app, host='0.0.0.0', port=5000)

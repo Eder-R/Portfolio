@@ -32,7 +32,7 @@ function redirectOnSubmit(event) {
     // Lógica para salvar os dados do formulário (pode ser feita com AJAX ou submissão normal)
 
     // Redireciona para a página "/"
-    window.location.href = "/";
+    window.location.href = "/cadastro_livros";
   }
 
 $(document).ready(function paginacaoLivros() {

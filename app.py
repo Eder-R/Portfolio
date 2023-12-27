@@ -11,27 +11,15 @@ from dotenv import load_dotenv
 
 from models.models import db, Livro, LivrosEmprestados, Pessoa
 
-# Imprima o valor da variável de ambiente para depuração
-database_url = os.environ.get('DATABASE_URL')
-print(f"DATABASE_URL: {database_url}")
-
 host = os.environ.get('HOST', '127.0.0.1')
 port = int(os.environ.get('PORT', 5000))
 
 # Configurações do banco de dados
-db_config = {
-    'host': os.environ.get('DB_HOST'),
-    'database': os.environ.get('DB_NAME'),
-    'user': os.environ.get('DB_USER'),
-    'password': os.environ.get('DB_PSWD')
-}
- 
 load_dotenv()
 app = Flask(__name__)
 # Configurações do SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///libmanager.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 # Configuração do Flask-Migrate
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -47,17 +35,20 @@ logger.setLevel(logging.ERROR)
 
 # Configuração do manipulador de arquivos rotativos por tempo
 log_filename = os.path.join(LOG_DIR, 'logs.log.txt')
-file_handler = TimedRotatingFileHandler(log_filename, when='midnight', interval=1, backupCount=5)
+file_handler = TimedRotatingFileHandler(
+    log_filename, when='midnight', interval=1, backupCount=5)
 file_handler.setLevel(logging.ERROR)
-file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(name)s : %(message)s'))
+file_handler.setFormatter(logging.Formatter(
+    '%(asctime)s %(levelname)s %(name)s : %(message)s'))
 
 # Adiciona o manipulador ao logger
 logger.addHandler(file_handler)
 
+
 @app.route('/', methods=['GET'])
 def listar_livros():
     '''Listar livros conforme o filtro'''
-    #----------------------------------------------------------
+    # ----------------------------------------------------------
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
     # Cálculo do offset
@@ -112,16 +103,19 @@ def listar_livros():
 
     return render_template('index.html', livros=livros, page=page, limit=limit, autores=autores, pessoas=pessoas, salas=salas)
 
+
 def get_authors():
     '''Função para pegar todos os autores'''
     authors = db.session.query(Livro.autor).distinct().all()
     authors = sorted([author[0] for author in authors])
     return authors
 
+
 def get_genres():
     '''Função para pegar todos os autores'''
     genres = db.session.query(Livro.genero).distinct().all()
     return [genre[0] for genre in genres]
+
 
 @app.route('/get_authors', methods=['GET'])
 def get_authors_route():
@@ -129,11 +123,13 @@ def get_authors_route():
     authors = get_authors()
     return jsonify(authors=authors)
 
+
 @app.route('/get_genres', methods=['GET'])
 def get_genres_route():
     '''Função para listar todos os generos'''
     genres = get_genres()
     return jsonify(genres=genres)
+
 
 @app.route('/get_books_count', methods=['GET'])
 def get_books_count():
@@ -141,10 +137,12 @@ def get_books_count():
     count = Livro.query.count()
     return jsonify({'count': count})
 
+
 @app.route('/cadastro_livros')
 def cadastro_livros():
     '''rota para cadastro dos livros'''
     return render_template('_regBooks.html')
+
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
@@ -155,10 +153,12 @@ def add_book():
         genero = request.form['genero']
         status = request.form.get('status') == 'on'  # Verifica o status
 
-        novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status)
+        novo_livro = Livro(nome=nome, autor=autor,
+                           genero=genero, status=status)
         db.session.add(novo_livro)
         db.session.commit()
-        print(f"ID do novo livro: {novo_livro.id}")  # Adicione esta linha para depuração
+        # Adicione esta linha para depuração
+        print(f"ID do novo livro: {novo_livro.id}")
 
         return redirect(url_for('cadastro_livros'))
 
@@ -195,10 +195,12 @@ def delete_book(id):
     flash('Livro apagado com sucesso')
     return redirect(url_for('index'))
 
+
 @app.route('/cadastro_pessoa')
 def cadastro_cliente():
     '''rota para cadastro das pessoas'''
     return render_template('_regClients.html')
+
 
 @app.route('/add_people', methods=['POST'])
 def add_people():
@@ -209,12 +211,15 @@ def add_people():
         matricula = request.form['matricula']
         adm = request.form.get('adm') == 'on'  # Verifica o status
 
-        nova_pessoa = Pessoa(nome=nome, sala=sala, matricula=matricula, adm=adm)
+        nova_pessoa = Pessoa(nome=nome, sala=sala,
+                             matricula=matricula, adm=adm)
         db.session.add(nova_pessoa)
         db.session.commit()
-        print(f"ID da pessoa: {nova_pessoa.id}")  # Adicione esta linha para depuração
+        # Adicione esta linha para depuração
+        print(f"ID da pessoa: {nova_pessoa.id}")
 
         return redirect(url_for('cadastro_cliente'))
+
 
 def get_salas():
     '''Função para pegar todos os autores'''
@@ -222,11 +227,13 @@ def get_salas():
     sala = sorted([sala[0] for sala in salas])
     return sala
 
+
 def get_matriculas():
     '''Função para pegar todos os autores'''
     matriculas = db.session.query(Pessoa.matricula).distinct().all()
     matricula = [matricula[0] for matricula in matriculas]
     return matricula
+
 
 @app.route('/verificar_devolucao')
 def verificar_devolucao():
@@ -241,6 +248,7 @@ def verificar_devolucao():
     db.session.commit()
 
     return "Verificação de devolução concluída com sucesso!"
+
 
 if __name__ == "__main__":
     with app.app_context():

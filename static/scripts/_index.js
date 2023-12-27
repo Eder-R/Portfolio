@@ -1,4 +1,4 @@
-$(document).ready(function cadastrarLivro() {
+function cadastrarLivro() {
     var form = $("#product-form");
 
     form.submit(function onSubmitForm(event) {
@@ -23,7 +23,17 @@ $(document).ready(function cadastrarLivro() {
     $("#redirect-button-plp").click(function onRedirectButtonClick() {
         window.location.href = "/cadastro_pessoa";
     });
-});
+};
+
+function redirectOnSubmit(event) {
+    // Impede o envio padrão do formulário
+    event.preventDefault();
+
+    // Lógica para salvar os dados do formulário (pode ser feita com AJAX ou submissão normal)
+
+    // Redireciona para a página "/"
+    window.location.href = "/";
+  }
 
 $(document).ready(function paginacaoLivros() {
     var currentPage = 1;
@@ -97,51 +107,6 @@ $(document).ready(function obterGeneros() {
                 $('#generoSelect').append('<option value="' + data.genres[i] + '">' + data.genres[i] + '</option>');
             }
         }
-    });
-});
-
-$(document).ready(function buscarCapaLivro() {
-    function obterCapaLivro(titulo) {
-        var googleBooksAPI = "https://www.googleapis.com/books/v1/volumes?q=" + titulo;
-
-        $.ajax({
-            type: "GET",
-            url: googleBooksAPI,
-            success: function onObterCapaLivroSuccess(data) {
-                if (data.totalItems > 0) {
-                    var book = data.items[0].volumeInfo;
-                    if (book.imageLinks && book.imageLinks.thumbnail) {
-                        var coverUrl = book.imageLinks.thumbnail;
-                        $("#book-cover").attr("src", coverUrl);
-                    } else {
-                        $("#book-cover").attr("src", "../imgs/NotFound.png");
-                    }
-                } else {
-                    $("#book-cover").attr("src", "../imgs/NotFound.png");
-                }
-            },
-            error: function onObterCapaLivroError() {
-                // Lidar com erros de requisição aqui
-            }
-        });
-    }
-
-    $("#product-form").submit(function onSubmitProductForm(event) {
-        event.preventDefault();
-        var formData = $(this).serialize();
-        var bookTitle = $("#book-title").val();
-        obterCapaLivro(bookTitle);
-    
-        $.ajax({
-            type: "POST",
-            url: "/add_book", // Alterar para a rota de adicionar livro
-            data: formData,
-            success: function onCadastroLivroSuccess(response) {
-                console.log(response);
-                // Redirecionar para a rota cadastro_livros após o sucesso
-                return window.location.href = '/cadastro_livros';
-            }
-        });
     });
 });
 

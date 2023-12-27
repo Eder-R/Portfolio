@@ -1,7 +1,6 @@
 '''Arquivo com os models carregados'''
 from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
 
 db = SQLAlchemy()
 

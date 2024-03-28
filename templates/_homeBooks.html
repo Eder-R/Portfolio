@@ -3,12 +3,12 @@
   <!-- Header/Home -->
   <header class="w3-container w3-padding-32 w3-center w3-black" id="inicio">
     <img src="../static/imgs/biblioteca.jpg" style="width:50%" alt="">
-    <h1 class="w3-jumbo"><span class="w3-hide-small">Gerenciar</span> livraria</h1>
+    <h1 class="w3-jumbo"><span class="w3-hide-small">Gerenciar livraria</span></h1>
   </header>
   <!-- Livros Section -->
   <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="livros">
     <div class="livro-container">
-      <h1>Livros</h1>
+      <div class="title">Livros</div>
       <table id="my-table" class="table table-striped table-bordered table-hover">
         <thead>
           <tr>
@@ -50,18 +50,18 @@
             <td>{{ livro.autor }}</td>
             <td>{{ livro.genero }}</td>
             <td>
-            {% if livro.status %}
+              {% if livro.status %}
               {% if livro.emprestado_para %}
-                {{ livro.emprestado_para }}
+              {{ livro.emprestado_para }}
               {% else %}
               Empréstimo registrado, mas não disponível
-            {% endif %}
+              {% endif %}
               {% else %}
-            Não emprestado
-            {% endif %}
+              Não emprestado
+              {% endif %}
             </td>
             <td>
-              <a href="{{ url_for('edit_book', livro_id=livro.id) }}"method="POST">Editar</a>
+              <a href="{{ url_for('edit_book', livro_id=livro.id) }}" method="POST">Editar</a>
             </td>
           </tr>
           {% endfor %}
@@ -70,11 +70,9 @@
     </div>
     <div class="pagination" id="pagination">
 
-      <button class="w3-button w3-blue w3-padding-large w3-section" id="redirect-button">
-        <a href="{{ url_for('cadastro_livros') }}">
+      <a class="w3-button w3-blue w3-padding-large w3-section" id="redirect-button" href="{{ url_for('cadastro_livros') }}">
           Cadastro de Livros
-        </a>
-      </button>
+      </a>
 
       <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page-1) }}">Página
         Anterior</a>

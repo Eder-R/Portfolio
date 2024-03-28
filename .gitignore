@@ -1,5 +1,6 @@
 __LibManager
 __Py*
+_db_sqlite/
 .coverage
 .pytest*
 *.log.*

@@ -1,7 +1,7 @@
 body, h1, h2, h3, h4, h5, h6 {
   font-family: "Montserrat", "Droid Sans", sans-serif;
   text-align: center;
-  color: #e4e4e4;
+  color: #ffffff;
   background: #6001f8;
   background-size: cover;
   background-attachment: fixed;
@@ -44,6 +44,7 @@ body, h1, h2, h3, h4, h5, h6 {
 
 a {
   text-decoration: none
+  color( #FFFFFF )
 }
 form{
   text-align: center;
@@ -55,6 +56,16 @@ form{
   overflow: hidden;
   border: 1px solid black;
 
+}
+
+.title  {
+  font-size: 2.5rem !important;
+  color: #FFFFFF;
+  background: #6001f8;
+  font-family: "Montserrat", "Droid Sans", sans-serif;
+  font-weight: 600;
+  text-align: center;
+  background-size: cover;
 }
 
 @media only screen and (max-width: 600px) {

@@ -31,9 +31,14 @@
     </div>
     <div class="pagination" id="pagination">
 
-      <button class="w3-button w3-blue w3-padding-large w3-section" id="redirect-button-plp">Cadastrar</button>
+      <button class="w3-button w3-blue w3-padding-large w3-section" id="redirect-button-plp">
+        <a href="{{ url_for('cadastro_pessoa') }}">
+          Cadastrar Nova Pessoa
+        </a>
+      </button>
 
-      <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page-1) }}">Página Anterior</a>
+      <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page-1) }}">Página
+        Anterior</a>
       <a class="w3-button w3-blue w3-padding-large w3-section"
         href="{{ url_for('listar_livros', page=page+1) }}">Próxima Página</a>
 

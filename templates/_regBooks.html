@@ -11,6 +11,7 @@
     crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/_index.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static'), filename = 'css/bootstrap.min.css' }}">
 
   <title>LibManager | Cadastrar livros </title>
 </head>
@@ -23,20 +24,20 @@
       <div class="form-group">
         <input type="text" name="book-title" class="form-control" placeholder="Titulo do Livro">
       </div>
-  
+
       <div class="form-group">
         <input type="text" name="autor" class="form-control" placeholder="Autor">
       </div>
-  
+
       <div class="form-group">
         <input type="text" name="genero" class="form-control" placeholder="Genero">
       </div>
-  
+
       <div class="form-group">
         <label for="status">Emprestado:</label>
         <input type="checkbox" name="status" id="status">
       </div>
-  
+
       <button type="submit" class="btn btn-primary">Adicionar Livro</button>
     </form>
   </div>
@@ -48,6 +49,7 @@
     integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+  <script src="../static/scripts/bootstrap.min.js"></script>
   <script src="../static/scripts/_index.js"></script>
 </body>
 

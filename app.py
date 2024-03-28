@@ -1,27 +1,37 @@
 '''Função principal para rodar o programa'''
 import os
 import logging
-import psycopg2
-from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
+from datetime import datetime
 from flask_migrate import Migrate
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from waitress import serve
 from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
 
-from models.models import db, Livro, LivrosEmprestados, Pessoa
+# from models.models import db, Livro, LivrosEmprestados, Pessoa
 
 host = os.environ.get('HOST', '127.0.0.1')
 port = int(os.environ.get('PORT', 5000))
 
+current_directory = os.path.dirname(os.path.abspath(__file__))
+database_path = os.path.join(current_directory, 'database', 'libmanager.db')
+
 # Configurações do banco de dados
 load_dotenv()
 app = Flask(__name__)
+
+db_folder_path = os.path.abspath(os.path.dirname(__file__))
+db_file_path = os.path.join(db_folder_path, 'database\libmanager.db')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_file_path}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
 # Configurações do SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///libmanager.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{database_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Configuração do Flask-Migrate
-db.init_app(app)
 migrate = Migrate(app, db)
 
 LOG_DIR = 'logs'  # Diretório onde os logs serão armazenados
@@ -44,6 +54,66 @@ file_handler.setFormatter(logging.Formatter(
 # Adiciona o manipulador ao logger
 logger.addHandler(file_handler)
 
+# Models
+
+class Livro(db.Model):
+    __tablename__ = 'livros'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nome = db.Column(db.String(255), nullable=False)
+    autor = db.Column(db.String(255), nullable=False)
+    genero = db.Column(db.String(255), nullable=False)
+    status = db.Column(db.Boolean(), nullable=True)
+    emprestado_para = db.Column(db.String(255))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'autor': self.autor,
+            'genero': self.genero,
+            'status': self.status,
+            'emprestado_para': self.emprestado_para
+        }
+
+class Pessoa(db.Model):
+    __tablename__ = 'pessoa'
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(255), nullable=False)
+    sala = db.Column(db.String(255), nullable=False)
+    matricula = db.Column(db.String(255))
+    adm = db.Column(db.Boolean, default=False, nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'sala': self.sala,
+            'matricula': self.matricula,
+            'adm': self.adm
+        }
+
+class LivrosEmprestados(db.Model):
+    __tablename__ = 'livros_emprestados'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    pessoa_id = db.Column(db.Integer, db.ForeignKey(
+        'pessoa.id'), nullable=False)
+    livro_id = db.Column(db.Integer, db.ForeignKey(
+        'livros.id'), nullable=False)
+    data_devolucao = db.Column(
+        db.DateTime, nullable=True, default=datetime.utcnow())
+
+    pessoa = db.relationship('Pessoa', backref=db.backref(
+        'livros_emprestados', lazy=True))
+    livro = db.relationship('Livro', backref=db.backref(
+        'livros_emprestados', lazy=True))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'pessoa_id': self.pessoa_id,
+            'livro_id': self.livro_id,
+            'data_devolucao': self.data_devolucao.strftime('%Y-%m-%d %H:%M:%S')
+        }
 
 @app.route('/', methods=['GET'])
 def listar_livros():
@@ -103,19 +173,16 @@ def listar_livros():
 
     return render_template('index.html', livros=livros, page=page, limit=limit, autores=autores, pessoas=pessoas, salas=salas)
 
-
 def get_authors():
     '''Função para pegar todos os autores'''
     authors = db.session.query(Livro.autor).distinct().all()
     authors = sorted([author[0] for author in authors])
     return authors
 
-
 def get_genres():
     '''Função para pegar todos os autores'''
     genres = db.session.query(Livro.genero).distinct().all()
     return [genre[0] for genre in genres]
-
 
 @app.route('/get_authors', methods=['GET'])
 def get_authors_route():
@@ -123,13 +190,11 @@ def get_authors_route():
     authors = get_authors()
     return jsonify(authors=authors)
 
-
 @app.route('/get_genres', methods=['GET'])
 def get_genres_route():
     '''Função para listar todos os generos'''
     genres = get_genres()
     return jsonify(genres=genres)
-
 
 @app.route('/get_books_count', methods=['GET'])
 def get_books_count():
@@ -153,6 +218,7 @@ def add_book():
         genero = request.form['genero']
         status = request.form.get('status') == 'on'  # Verifica o status
 
+        
         novo_livro = Livro(nome=nome, autor=autor,
                            genero=genero, status=status)
         db.session.add(novo_livro)
@@ -197,7 +263,7 @@ def delete_book(id):
 
 
 @app.route('/cadastro_pessoa')
-def cadastro_cliente():
+def cadastro_pessoa():
     '''rota para cadastro das pessoas'''
     return render_template('_regClients.html')
 
@@ -218,7 +284,7 @@ def add_people():
         # Adicione esta linha para depuração
         print(f"ID da pessoa: {nova_pessoa.id}")
 
-        return redirect(url_for('cadastro_cliente'))
+        return redirect(url_for('cadastro_pessoa'))
 
 
 def get_salas():

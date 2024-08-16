@@ -56,6 +56,7 @@ logger.addHandler(file_handler)
 
 # Models
 
+
 class Livro(db.Model):
     __tablename__ = 'livros'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -75,6 +76,7 @@ class Livro(db.Model):
             'emprestado_para': self.emprestado_para
         }
 
+
 class Pessoa(db.Model):
     __tablename__ = 'pessoa'
     id = db.Column(db.Integer, primary_key=True)
@@ -91,6 +93,7 @@ class Pessoa(db.Model):
             'matricula': self.matricula,
             'adm': self.adm
         }
+
 
 class LivrosEmprestados(db.Model):
     __tablename__ = 'livros_emprestados'
@@ -115,12 +118,17 @@ class LivrosEmprestados(db.Model):
             'data_devolucao': self.data_devolucao.strftime('%Y-%m-%d %H:%M:%S')
         }
 
+
 @app.route('/', methods=['GET'])
-def listar_livros():
+def index():
+    '''Rota pagina inicial'''
+    return render_template('index.html', page=1)
+
+@app.route('/books', methods=['GET'])
+def list_books():
     '''Listar livros conforme o filtro'''
-    # ----------------------------------------------------------
     page = request.args.get('page', default=1, type=int)
-    limit = request.args.get('limit', default=10, type=int)
+    limit = request.args.get('limit', default=15, type=int)
     # Cálculo do offset
     offset = (page - 1) * limit
 
@@ -171,7 +179,13 @@ def listar_livros():
     autores = get_authors()
     salas = get_salas()
 
-    return render_template('index.html', livros=livros, page=page, limit=limit, autores=autores, pessoas=pessoas, salas=salas)
+    if request.headers.get('Accept') == 'application/json':
+        return jsonify(livros=[livro.to_dict() for livro in livros],
+                       pessoas=[pessoa.to_dict() for pessoa in pessoas],
+                       autores=autores, salas=salas)
+    else:
+        return redirect(url_for('index'))
+
 
 def get_authors():
     '''Função para pegar todos os autores'''
@@ -179,10 +193,12 @@ def get_authors():
     authors = sorted([author[0] for author in authors])
     return authors
 
+
 def get_genres():
     '''Função para pegar todos os autores'''
     genres = db.session.query(Livro.genero).distinct().all()
     return [genre[0] for genre in genres]
+
 
 @app.route('/get_authors', methods=['GET'])
 def get_authors_route():
@@ -190,11 +206,13 @@ def get_authors_route():
     authors = get_authors()
     return jsonify(authors=authors)
 
+
 @app.route('/get_genres', methods=['GET'])
 def get_genres_route():
     '''Função para listar todos os generos'''
     genres = get_genres()
     return jsonify(genres=genres)
+
 
 @app.route('/get_books_count', methods=['GET'])
 def get_books_count():
@@ -218,7 +236,6 @@ def add_book():
         genero = request.form['genero']
         status = request.form.get('status') == 'on'  # Verifica o status
 
-        
         novo_livro = Livro(nome=nome, autor=autor,
                            genero=genero, status=status)
         db.session.add(novo_livro)

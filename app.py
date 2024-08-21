@@ -24,7 +24,7 @@ app = Flask(__name__)
 db_folder_path = os.path.abspath(os.path.dirname(__file__))
 db_file_path = os.path.join(db_folder_path, 'database\libmanager.db')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_file_path}'
+#app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_file_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 

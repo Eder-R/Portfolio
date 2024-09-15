@@ -1,58 +1,31 @@
-<!DOCTYPE html>
-<html>
+<div class="w3-padding-large" id="main">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
-    integrity="sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/_index.css') }}">
-
-  <title>LibManager | Cadastrar clientes </title>
-</head>
-
-<body class="w3-black">
+  <header class="w3-container w3-padding-32 w3-center w3-black" id="inicio">
+    <img src="../static/imgs/biblioteca.jpg" style="width:50%" alt="">
+    <h1 class="w3-jumbo"><span class="w3-hide-small">Gerenciar livraria</span></h1>
+  </header>
 
   <div class="container">
     <h1>Registrar Clientes</h1>
-    <form action="/add_people" method="POST" class="filter-form">
+    <form action="{{ url_for('add_people') }}" method="POST" class="filter-form">
       <div class="form-group">
-        <input type="text" name="people-name" class="form-control" placeholder="Nome da pessoa">
-      </div>
+        <label for="people-name">Nome da pessoa</label>
+        <input type="text" name="people-name" class="form-control" required>
 
-      <div class="form-group">
-        <input type="text" name="sala" id="sala" class="form-control" placeholder="Sala/Turma">
-      </div>
+        <label for="sala">Sala/turma</label>
+        <input type="text" name="sala" id="sala" class="form-control" required>
 
-      <div class="form-group">
-        <input type="number" name="matricula" id="matricula" class="form-control" placeholder="matricula">
-      </div>
+        <label for="matricula">Matrícula:</label>
+        <input type="text" name="matricula" id="matricula" class="form-control">
 
-      <div class="form-group">
-        <label for="status">Administrador:</label>
-        <input type="checkbox" name="adm" id="adm">
+        <label for="role">Tipo de usuário:</label>
+        <select id="role" name="role">
+          <option value="Aluno">Aluno</option>
+          <option value="Professor">Professor</option>
+        </select>
+        <br>
+        <button type="submit" class="w3-button w3-blue w3-padding-large w3-section" >Cadastrar Pessoa</button>
       </div>
-
-      <button type="submit" class="w3-button btn btn-primary">
-        <a href="/">
-          Cadastrar
-        </a>
-      </button>
     </form>
   </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
-    integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js"
-    integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-  <script src="../static/scripts/_index.js"></script>
-</body>
-
-</html>
+</div>

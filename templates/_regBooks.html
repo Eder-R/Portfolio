@@ -1,56 +1,30 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
-    integrity="sha512-b2QcS5SsA8tZodcDtGRELiGv5SaKSk1vDHDaQRda0htPYWZ6046lr3kJ5bAAQdpV2mmA/4v0wQF9MyU6/pDIAg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/_index.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static'), filename = 'css/bootstrap.min.css' }}">
-
-  <title>LibManager | Cadastrar livros </title>
-</head>
-
-<body class="w3-black">
+<div class="w3-padding-large" id="main">
+  <!-- Header/Home -->
+  <header class="w3-container w3-padding-32 w3-center w3-black" id="inicio">
+    <img src="../static/imgs/biblioteca.jpg" style="width:50%" alt="">
+    <h1 class="w3-jumbo"><span class="w3-hide-small">Gerenciar livraria</span></h1>
+  </header>
 
   <div class="container">
     <h1>Registrar livro</h1>
-    <form action="/add_book" method="POST" class="filter-form">
+    <form action="{{ url_for('add_book') }}" method="POST" class="filter-form">
       <div class="form-group">
-        <input type="text" name="book-title" class="form-control" placeholder="Titulo do Livro">
-      </div>
-
-      <div class="form-group">
-        <input type="text" name="autor" class="form-control" placeholder="Autor">
-      </div>
-
-      <div class="form-group">
-        <input type="text" name="genero" class="form-control" placeholder="Genero">
-      </div>
-
-      <div class="form-group">
+        <label for="book-title">Titulo do Livro</label>
+        <input type="text" name="book-title" class="form-control", required>
+      
+        <label for="autor">Nome do autor</label>
+        <input type="text" name="autor" class="form-control">
+        
+        <label for="genero">Genero do Livro</label>
+        <input type="text" name="genero" class="form-control">
+      
         <label for="status">Emprestado:</label>
         <input type="checkbox" name="status" id="status">
-      </div>
+        
+        <br>
 
-      <button type="submit" class="btn btn-primary">Adicionar Livro</button>
+        <button type="submit" class="w3-button w3-blue w3-padding-large w3-section" >Adicionar Livro</button>
+      </div>
     </form>
   </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
-    integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js"
-    integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-  <script src="../static/scripts/bootstrap.min.js"></script>
-  <script src="../static/scripts/_index.js"></script>
-</body>
-
-</html>
+</div>

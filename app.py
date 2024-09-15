@@ -1,6 +1,6 @@
 import os
 import logging
-from logging.handlers import TimedRotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
 from datetime import datetime
 from flask_migrate import Migrate
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
@@ -39,8 +39,18 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
 log_filename = os.path.join(LOG_DIR, 'logs.log.txt')
-file_handler = TimedRotatingFileHandler(
-    log_filename, when='midnight', interval=1, backupCount=5)
+# Remover handlers antigos
+for handler in logger.handlers[:]:
+    logger.removeHandler(handler)
+    handler.close()
+
+file_handler = RotatingFileHandler(
+    log_filename, maxBytes=1024*1024*5, backupCount=5, delay=True)
+
+# Adicionar o novo handler
+logger.addHandler(file_handler)
+# file_handler = TimedRotatingFileHandler(
+#     log_filename, when='midnight', interval=1, backupCount=5, delay=True)
 file_handler.setLevel(logging.ERROR)
 file_handler.setFormatter(logging.Formatter(
     '%(asctime)s %(levelname)s %(name)s : %(message)s'))
@@ -74,7 +84,7 @@ class Pessoa(db.Model):
     nome = db.Column(db.String(255), nullable=False)
     sala = db.Column(db.String(255), nullable=False)
     matricula = db.Column(db.String(255))
-    adm = db.Column(db.Boolean, default=False, nullable=False)
+    role = db.Column(db.String(50), nullable=False, default="Aluno")
 
     def to_dict(self):
         return {
@@ -82,7 +92,7 @@ class Pessoa(db.Model):
             'nome': self.nome,
             'sala': self.sala,
             'matricula': self.matricula,
-            'adm': self.adm
+            'role': self.role
         }
 
 class LivrosEmprestados(db.Model):
@@ -111,99 +121,51 @@ class LivrosEmprestados(db.Model):
 # Demais rotas e funções aqui...
 @app.route('/', methods=['GET'])
 def listar_livros():
-    '''Listar livros conforme o filtro'''
-    #----------------------------------------------------------
+    '''Listar livros e pessoas conforme os filtros'''
+
+    # Parâmetros de paginação
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
-    # Cálculo do offset
     offset = (page - 1) * limit
 
-    # Consulta ao banco de dados usando SQLAlchemy
-    # ==========================================================
-    # Obtém os parâmetros de filtro do request
-    matricula_filtrado = request.args.get('matricula', default=None, type=int)
-    sala_filtrado = request.args.get('sala', default=None, type=str)
-    nome_filtrado = request.args.get('nome', default=None, type=str)
-
+    # Parâmetros de filtro para livros
     genero_filtrado = request.args.get('genero', default=None, type=str)
     autor_filtrado = request.args.get('autor', default=None, type=str)
-    nome_filtrado = request.args.get('nome', default=None, type=str)
-    # Define o limite de registros por página
-    limit = 10
-    offset = (page - 1) * limit
+    nome_livro_filtrado = request.args.get('nome_livro', default=None, type=str)
 
-    query = Livro.query
-    query2 = Pessoa.query
+    # Parâmetros de filtro para pessoas
+    matricula_filtrado = request.args.get('matricula', default=None, type=int)
+    sala_filtrado = request.args.get('sala', default=None, type=str)
+    nome_pessoa_filtrado = request.args.get('nome_pessoa', default=None, type=str)
 
-    # Aplica os filtros na consulta conforme necessário
+    # Consultas para livros
+    query_livros = Livro.query
     if genero_filtrado:
-        query = query.filter_by(genero=genero_filtrado)
-
+        query_livros = query_livros.filter_by(genero=genero_filtrado)
     if autor_filtrado:
-        query = query.filter_by(autor=autor_filtrado)
+        query_livros = query_livros.filter_by(autor=autor_filtrado)
+    if nome_livro_filtrado:
+        query_livros = query_livros.filter(Livro.nome.like(f"%{nome_livro_filtrado}%"))
 
-    if nome_filtrado:
-        query = query.filter(Livro.nome.like(f"%{nome_filtrado}%"))
-
+    # Consultas para pessoas
+    query_pessoas = Pessoa.query
     if matricula_filtrado:
-        query = query.filter_by(matricula=matricula_filtrado)
-
+        query_pessoas = query_pessoas.filter_by(matricula=matricula_filtrado)
     if sala_filtrado:
-        query = query.filter_by(sala=sala_filtrado)
+        query_pessoas = query_pessoas.filter_by(sala=sala_filtrado)
+    if nome_pessoa_filtrado:
+        query_pessoas = query_pessoas.filter(Pessoa.nome.like(f"%{nome_pessoa_filtrado}%"))
 
-    if nome_filtrado:
-        query = query.filter(Pessoa.nome.like(f"%{nome_filtrado}%"))
+    # Aplicar paginação
+    livros = query_livros.order_by(Livro.nome).offset(offset).limit(limit).all()
+    pessoas = query_pessoas.order_by(Pessoa.nome).offset(offset).limit(limit).all()
 
-    # Ordena os resultados por nome (ordem alfabética)
-    query = query.order_by(Livro.nome).offset(offset).limit(limit)
-    query2 = query2.order_by(Pessoa.nome).offset(offset).limit(limit)
-
-    # Obtém os resultados da consulta após aplicar os filtros e ordenação
-    livros = query.all()
-    pessoas = query2.all()
-
+    # Dados auxiliares
     autores = get_authors()
     salas = get_salas()
 
-    return render_template('index.html', livros=livros, page=page, limit=limit, autores=autores, pessoas=pessoas, salas=salas)
-
-@app.route('/', methods=['GET'])
-def listar_pessoas():
-    '''Listar pessoas conforme o filtro'''
-    #----------------------------------------------------------
-    page = request.args.get('page', default=1, type=int)
-    limit = request.args.get('limit', default=10, type=int)
-    # Cálculo do offset
-    offset = (page - 1) * limit
-
-    # Consulta ao banco de dados usando SQLAlchemy
-    # ==========================================================
-    # Obtém os parâmetros de filtro do request
-    matricula_filtrado = request.args.get('matricula', default=None, type=int)
-    sala_filtrado = request.args.get('sala', default=None, type=str)
-    nome_filtrado = request.args.get('nome', default=None, type=str)
-
-    query = Pessoa.query
-
-    # Aplica os filtros na consulta conforme necessário
-    if matricula_filtrado:
-        query = query.filter_by(matricula=matricula_filtrado)
-
-    if sala_filtrado:
-        query = query.filter_by(sala=sala_filtrado)
-
-    if nome_filtrado:
-        query = query.filter(Pessoa.nome.like(f"%{nome_filtrado}%"))
-
-    # Ordena os resultados por nome (ordem alfabética)
-    query = query.order_by(Pessoa.nome).offset(offset).limit(limit)
-
-    # Obtém os resultados da consulta após aplicar os filtros e ordenação
-    pessoas = query.all()
-
-    salas = get_salas()
-
-    return render_template('index.html', pessoas=pessoas, page=page, limit=limit, salas=salas)
+    # Renderiza ambos os dados no template
+    return render_template('index.html', livros=livros, pessoas=pessoas, page=page, limit=limit, autores=autores, salas=salas)
 
 def get_authors():
     '''Função para pegar todos os autores'''
@@ -237,7 +199,7 @@ def get_books_count():
 @app.route('/cadastro_livros')
 def cadastro_livros():
     '''rota para cadastro dos livros'''
-    return render_template('_regBooks.html')
+    return render_template('cadastroLivros.html')
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
@@ -269,7 +231,7 @@ def edit_book(id):
         return redirect(url_for('listar_livros'))
     return render_template('_editBook.html', livro=livro)
 
-@app.route('/delete/<int:id>', methods=['POST'])
+@app.route('/delete_book/<int:id>', methods=['POST'])
 def delete_book(id):
     ''' Apagar livro '''
     livro = Livro.query.get(id)
@@ -278,10 +240,19 @@ def delete_book(id):
     flash('Livro apagado com sucesso')
     return redirect(url_for('index'))
 
+@app.route('/delete_person/<int:id>', methods=['POST'])
+def delete_person(id):
+    ''' Apagar pessoa '''
+    pessoa = Pessoa.query.get(id)
+    db.session.delete(pessoa)
+    db.session.commit()
+    flash('Pessoa apagada com sucesso')
+    return redirect(url_for('index'))
+
 @app.route('/cadastro_pessoa')
 def cadastro_pessoa():
     '''rota para cadastro das pessoas'''
-    return render_template('regClients.html')
+    return render_template('cadastroPessoas.html')
 
 @app.route('/add_people', methods=['POST'])
 def add_people():
@@ -290,9 +261,9 @@ def add_people():
         nome = request.form['people-name']
         sala = request.form['sala']
         matricula = request.form['matricula']
-        adm = request.form.get('adm') == 'on'  # Verifica o status
+        role = request.form.get('role')  # Verifica o status
 
-        nova_pessoa = Pessoa(nome=nome, sala=sala, matricula=matricula, adm=adm)
+        nova_pessoa = Pessoa(nome=nome, sala=sala, matricula=matricula, role=role)
         db.session.add(nova_pessoa)
         db.session.commit()
         print(f"ID da pessoa: {nova_pessoa.id}")  # Adicione esta linha para depuração
@@ -324,6 +295,99 @@ def verificar_devolucao():
     db.session.commit()
 
     return "Verificação de devolução concluída com sucesso!"
+
+@app.route('/api/livros', methods=['GET'])
+def api_listar_livros():
+    '''Listar todos os livros como JSON'''
+    livros = Livro.query.all()
+    livros_dict = [livro.to_dict() for livro in livros]  # Converte para dicionário
+    return jsonify(livros=livros_dict), 200
+
+@app.route('/api/pessoas', methods=['GET'])
+def api_listar_pessoas():
+    '''Listar todas as pessoas como JSON'''
+    pessoas = Pessoa.query.all()
+    pessoas_dict = [pessoa.to_dict() for pessoa in pessoas]  # Converte para dicionário
+    return jsonify(pessoas=pessoas_dict), 200
+
+@app.route('/api/livros', methods=['POST'])
+def api_add_livro():
+    '''Adicionar um novo livro via API'''
+    data = request.json
+    nome = data.get('nome')
+    autor = data.get('autor')
+    genero = data.get('genero')
+    status = data.get('status', True)
+    
+    novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status)
+    db.session.add(novo_livro)
+    db.session.commit()
+
+    return jsonify({'message': 'Livro adicionado com sucesso!', 'livro': novo_livro.to_dict()}), 201
+
+@app.route('/api/pessoas', methods=['POST'])
+def api_add_pessoa():
+    '''Adicionar uma nova pessoa via API'''
+    data = request.json
+    nome = data.get('nome')
+    sala = data.get('sala')
+    matricula = data.get('matricula')
+    role = data.get('role', 'Aluno')  # Papel padrão é Aluno
+    
+    nova_pessoa = Pessoa(nome=nome, sala=sala, matricula=matricula, role=role)
+    db.session.add(nova_pessoa)
+    db.session.commit()
+
+    return jsonify({'message': 'Pessoa adicionada com sucesso!', 'pessoa': nova_pessoa.to_dict()}), 201
+
+
+@app.route('/api/livros/<int:id>', methods=['PUT'])
+def api_update_livro(id):
+    '''Atualizar um livro existente via API'''
+    livro = Livro.query.get_or_404(id)
+    data = request.json
+
+    livro.nome = data.get('nome', livro.nome)
+    livro.autor = data.get('autor', livro.autor)
+    livro.genero = data.get('genero', livro.genero)
+    livro.status = data.get('status', livro.status)
+
+    db.session.commit()
+
+    return jsonify({'message': 'Livro atualizado com sucesso!', 'livro': livro.to_dict()}), 200
+
+@app.route('/api/pessoas/<int:id>', methods=['PUT'])
+def api_update_pessoa(id):
+    '''Atualizar uma pessoa existente via API'''
+    pessoa = Pessoa.query.get_or_404(id)
+    data = request.json
+
+    pessoa.nome = data.get('nome', pessoa.nome)
+    pessoa.sala = data.get('sala', pessoa.sala)
+    pessoa.matricula = data.get('matricula', pessoa.matricula)
+    pessoa.role = data.get('role', pessoa.role)
+
+    db.session.commit()
+
+    return jsonify({'message': 'Pessoa atualizada com sucesso!', 'pessoa': pessoa.to_dict()}), 200
+
+@app.route('/api/livros/<int:id>', methods=['DELETE'])
+def api_delete_livro(id):
+    '''Excluir um livro via API'''
+    livro = Livro.query.get_or_404(id)
+    db.session.delete(livro)
+    db.session.commit()
+
+    return jsonify({'message': 'Livro excluído com sucesso!'}), 200
+
+@app.route('/api/pessoas/<int:id>', methods=['DELETE'])
+def api_delete_pessoa(id):
+    '''Excluir uma pessoa via API'''
+    pessoa = Pessoa.query.get_or_404(id)
+    db.session.delete(pessoa)
+    db.session.commit()
+
+    return jsonify({'message': 'Pessoa excluída com sucesso!'}), 200
 
 if __name__ == "__main__":
     with app.app_context():

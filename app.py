@@ -229,7 +229,7 @@ def edit_book(id):
         db.session.commit()
         flash('Livro atualizado com sucesso')
         return redirect(url_for('listar_livros'))
-    return render_template('_editBook.html', livro=livro)
+    return render_template('editarLivros.html', livro=livro)
 
 @app.route('/delete_book/<int:id>', methods=['POST'])
 def delete_book(id):

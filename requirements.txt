@@ -19,3 +19,6 @@ waitress==3.0.0
 watchdog==4.0.2
 werkzeug==3.0.4
 zipp==3.20.2
+
+# Dependências para CI/CD
+coverage; sys_platform == 'linux'

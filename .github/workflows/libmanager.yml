@@ -5,11 +5,9 @@ name: LibManager Tests
 
 on:
   push:
-    branches: 
-      - [main]
+    branches: [main]
   pull_request:
-    branches:
-      - [main]
+    branches: [main]
     types: [opened, synchronize, reopened, push, pull_request]
 
 jobs:

@@ -80,7 +80,7 @@ class Pessoa(db.Model):
     __tablename__ = 'pessoa'
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(255), nullable=False)
-    sala = db.Column(db.String(255), nullable=False)
+    sala = db.Column(db.String(255), nullable=False, default='Indefinido')
     matricula = db.Column(db.String(255))
     role = db.Column(db.String(50), nullable=False, default="Aluno")
 
@@ -328,6 +328,12 @@ def list_books():
     ''' Exibir livros em HTML '''
     livros = Livro.query.all()  # Consulta todos os livros do banco de dados
     return render_template('listarLivros.html', livros=livros)
+
+@app.route('/pessoas', methods=['GET'])
+def list_persons():
+    ''' Exibir pessoas em HTML '''
+    pessoas = Pessoa.query.all()  # Consulta todas as pessoas do banco de dados
+    return render_template('listarPessoas.html', pessoas=pessoas)
 
 @app.route('/api/livros', methods=['GET'])
 def api_listar_livros():

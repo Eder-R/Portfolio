@@ -8,8 +8,6 @@ from waitress import serve
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 
-# from models.models import db, Livro, LivrosEmprestados, Pessoa
-
 # Carregar variáveis de ambiente do .env
 load_dotenv()
 
@@ -210,7 +208,22 @@ def add_book():
         genero = request.form['genero']
         status = request.form.get('status') == 'on'  # Verifica o status
 
-        novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status)
+        # Se o livro está emprestado, verifique a pessoa
+        emprestado_para = request.form.get('borrower') if status else None
+        pessoa = None
+        
+        # Verifique se a pessoa já está registrada
+        if emprestado_para:
+            pessoa = Pessoa.query.filter_by(nome=emprestado_para).first()
+            if not pessoa:
+                # Cadastra a nova pessoa se não existir
+                pessoa = Pessoa(nome=emprestado_para)
+                db.session.add(pessoa)
+                db.session.commit()
+                print(f"ID da nova pessoa: {pessoa.id}")  # Adicione esta linha para depuração
+        
+
+        novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status, emprestado_para=pessoa.nome if pessoa else None)
         db.session.add(novo_livro)
         db.session.commit()
         print(f"ID do novo livro: {novo_livro.id}")  # Adicione esta linha para depuração
@@ -225,7 +238,21 @@ def edit_book(id):
         livro.autor = request.form['autor']
         livro.genero = request.form['genero']
         livro.status = request.form.get('status') == 'on'
-        livro.emprestado_para = request.form['emprestado_para'] if livro.status else None
+        # Verifique se o livro foi marcado como emprestado
+        emprestado_para = request.form.get('emprestado_para') if livro.status else None
+        pessoa = None
+        
+        if emprestado_para:
+            pessoa = Pessoa.query.filter_by(nome=emprestado_para).first()
+            if not pessoa:
+                # Cadastrar uma nova pessoa, se não existir
+                pessoa = Pessoa(nome=emprestado_para)
+                db.session.add(pessoa)
+                db.session.commit()
+                print(f"ID da nova pessoa: {pessoa.id}")  # Adicione esta linha para depuração
+                
+        # Atualizar o campo de empréstimo do livro
+        livro.emprestado_para = pessoa.nome if pessoa else None
         db.session.commit()
         flash('Livro atualizado com sucesso')
         return redirect(url_for('listar_livros'))
@@ -295,6 +322,12 @@ def verificar_devolucao():
     db.session.commit()
 
     return "Verificação de devolução concluída com sucesso!"
+
+@app.route('/livros', methods=['GET'])
+def list_books():
+    ''' Exibir livros em HTML '''
+    livros = Livro.query.all()  # Consulta todos os livros do banco de dados
+    return render_template('listarLivros.html', livros=livros)
 
 @app.route('/api/livros', methods=['GET'])
 def api_listar_livros():

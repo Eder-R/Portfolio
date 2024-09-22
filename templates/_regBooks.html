@@ -20,7 +20,11 @@
       
         <label for="status">Emprestado:</label>
         <input type="checkbox" name="status" id="status">
-        
+         <!-- Campo escondido para o nome do responsável pelo empréstimo -->
+        <div id="borrower-field" style="display: none; margin-top: 10px;">
+          <label for="borrower">Nome da pessoa que pegou emprestado</label>
+          <input type="text" name="borrower" class="form-control">
+        </div>
         <br>
 
         <button type="submit" class="w3-button w3-blue w3-padding-large w3-section" >Adicionar Livro</button>
@@ -28,3 +32,16 @@
     </form>
   </div>
 </div>
+
+
+<script>
+  // Função para exibir/esconder o campo de quem pegou emprestado
+  document.getElementById('status').addEventListener('change', function() {
+    var borrowerField = document.getElementById('borrower-field');
+    if (this.checked) {
+      borrowerField.style.display = 'block';  // Mostra o campo se o checkbox estiver marcado
+    } else {
+      borrowerField.style.display = 'none';   // Esconde o campo se o checkbox estiver desmarcado
+    }
+  });
+</script>

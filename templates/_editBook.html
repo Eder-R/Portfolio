@@ -12,10 +12,17 @@
       <input type="text" id="generoLivro" required>
       <br>
       <label for="statusLivro">Status do Livro:</label>
-      <select id="statusLivro">
-        <option value="true">Emprestado</option>
+      <select id="statusLivro" onchange="toggleNomePessoa()">
         <option value="false">Não Emprestado</option>
+        <option value="true">Emprestado</option>
       </select>
+      <br>
+
+      <!-- Campo adicional oculto inicialmente -->
+      <div id="nomePessoaContainer" style="display: none;">
+        <label for="nomePessoa">Nome da Pessoa que Pegou Emprestado:</label>
+        <input type="text" id="nomePessoa">
+      </div>
 
       <button type="button" onclick="alterarDadosLivro({{ livro.id }})">Alterar Dados</button>
 
@@ -23,3 +30,17 @@
     </div>
   </form>
 </div>
+
+<script>
+  function toggleNomePessoa() {
+    const statusLivro = document.getElementById('statusLivro').value;
+    const nomePessoaContainer = document.getElementById('nomePessoaContainer');
+    
+    // Se o status for "true" (Emprestado), exibe o campo para nome da pessoa
+    if (statusLivro === 'true') {
+      nomePessoaContainer.style.display = 'block';
+    } else {
+      nomePessoaContainer.style.display = 'none';
+    }
+  }
+</script>

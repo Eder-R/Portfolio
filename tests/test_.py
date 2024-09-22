@@ -1,5 +1,5 @@
 import unittest
-from ..app import app, db, Livro, Pessoa
+from app import app, db, Livro, Pessoa
 
 class FlaskAppTests(unittest.TestCase):
     

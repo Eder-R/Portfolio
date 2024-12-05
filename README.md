@@ -113,14 +113,12 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
 ## ToDo
 
 - [X] Cadastro de Livros
-    - Ver com alguem se conseguimos saber o erro.
 - [X] Cadastro de Clientes
 - [X] CI/ CD
 - [X] Testes Unitários
-- [ ] Consertar o arquivo README.md
-    - [X] Inserir instruções de como utilizar;
-    - [ ] Inserir instruções de como contribuir;
-    - [X] Reinserir as imagens dos que se perderam nos processos durante as atualições;
+- [X] Consertar o arquivo README.md
+  - [X] Inserir instruções de como utilizar;
+  - [X] Reinserir as imagens que se perderam nos processos durante as atualizações;
 
 <!-- ## Pesquisar mais a fundo
 
@@ -130,10 +128,11 @@ Testes Unitarios:
 ## Como Utilizar
 
   1. Clone o repositório.
-  2. Crie um Ambiente Virtual para o projeto, siga os passos abaixo:
+  2. Acesse o diretório do repositório pelo terminal.
+  3. Crie um Ambiente Virtual para o projeto, siga os passos abaixo:
      1. Linux
-        Insira o comando `python3 -m venv __LibManager` e ative-o com `source venv/bin/activate`, no terminal.
-      2. Windows
-         1. Insira o comando `python -m venv __LibManager` e ative-o com `.\__LibManager\Scripts\activate` no prompt
-  3. Instale as dependências necessárias com o comando `pip install -r requirements.txt`.
-  4. 
+        Insira o comando `python3 -m venv env` e ative-o com `source venv/bin/activate`, no terminal.
+     2. Windows
+        Insira o comando `python -m venv env` e ative-o com `.\__LibManager\Scripts\activate` no prompt
+  4. Instale as dependências necessárias com o comando `pip install -r requirements.txt`.
+  5. Rode o comando `python app.py` para inicializar as dependências necessárias.

@@ -5,12 +5,12 @@
     <h1 class="w3-jumbo"><span class="w3-hide-small">Gerenciar livraria</span></h1>
   </header>
 
-  <div class="container">
-    <h1>Registrar livro</h1>
+  <h1>Registrar livro</h1>
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
     <form action="{{ url_for('add_book') }}" method="POST" class="filter-form">
       <div class="form-group">
         <label for="book-title">Titulo do Livro</label>
-        <input type="text" name="book-title" class="form-control", required>
+        <input type="text" name="book-title" class="form-control">
       
         <label for="autor">Nome do autor</label>
         <input type="text" name="autor" class="form-control">
@@ -21,10 +21,25 @@
         <label for="status">Emprestado:</label>
         <input type="checkbox" name="status" id="status">
         
-        <br>
+        <div id="borrower-field" style="display: none; margin-top: 10px;">
+          <label for="borrower">Nome da pessoa que pegou emprestado</label>
+          <input type="text" name="borrower" class="form-control">
+        </div>
 
-        <button type="submit" class="w3-button w3-blue w3-padding-large w3-section" >Adicionar Livro</button>
+        <button type="submit" class="w3-button w3-blue w3-padding-large w3-section">Adicionar Livro</button>
       </div>
+    </form>
+
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xml, .css, .xlsx" required>
+        <button type="submit">Importar</button>
     </form>
   </div>
 </div>
+
+<script>
+  document.getElementById('status').addEventListener('change', function() {
+    var borrowerField = document.getElementById('borrower-field');
+    borrowerField.style.display = this.checked ? 'block' : 'none';
+  });
+</script>

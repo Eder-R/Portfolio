@@ -10,7 +10,7 @@
     - [**Atores:**](#atores)
     - [**Casos de Uso:**](#casos-de-uso)
   - [ToDo](#todo)
-  - [Pesquisar mais a fundo](#pesquisar-mais-a-fundo)
+  - [Como Utilizar](#como-utilizar)
 
 ## Definição do problema
 
@@ -26,7 +26,6 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
 - O sistema ajudará a escola a economizar tempo e dinheiro.
 - O sistema permitirá aos alunos e professores pesquisar livros, verificar livros, pagar multas e muito mais.
 - O sistema poderá ser usado para gerar relatórios sobre o uso da biblioteca, o que ajudaria a escola a tomar decisões sobre quais livros comprar e como alocar recursos.
-
 
 ## Requisitos
 
@@ -114,19 +113,26 @@ Aqui estão algumas das vantagens de usar um sistema web, para gerenciar uma bib
 ## ToDo
 
 - [X] Cadastro de Livros
-    - Ver com alguem se conseguimos saber o erro.
 - [X] Cadastro de Clientes
 - [X] CI/ CD
 - [X] Testes Unitários
-- [ ] Consertar o arquivo README.md
-    - [ ] Inserir instruções de como utilizar;
-    - [ ] Inserir instruções de como contribuir;
-    - [X] Reinserir as imagens dos que se perderam nos processos durante as atualições;
-    - [ ] Inserir informações de ajudantes;
+- [X] Consertar o arquivo README.md
+  - [X] Inserir instruções de como utilizar;
+  - [X] Reinserir as imagens que se perderam nos processos durante as atualizações;
 
-## Pesquisar mais a fundo
+<!-- ## Pesquisar mais a fundo
 
 Testes Unitarios: 
-    `https://medium.com/@otaviobn/tdd-com-flask-e-unittest-3f66036a240b`
-    
-Deploy real do projeto: `https://pythonbasics.org/deploy-flask-app/`, `https://medium.com/swlh/how-to-host-your-flask-app-on-pythonanywhere-for-free-df8486eb6a42`
+    `https://medium.com/@otaviobn/tdd-com-flask-e-unittest-3f66036a240b` -->
+
+## Como Utilizar
+
+  1. Clone o repositório.
+  2. Acesse o diretório do repositório pelo terminal.
+  3. Crie um Ambiente Virtual para o projeto, siga os passos abaixo:
+     1. Linux
+        Insira o comando `python3 -m venv env` e ative-o com `source venv/bin/activate`, no terminal.
+     2. Windows
+        Insira o comando `python -m venv env` e ative-o com `.\__LibManager\Scripts\activate` no prompt
+  4. Instale as dependências necessárias com o comando `pip install -r requirements.txt`.
+  5. Rode o comando `python app.py` para inicializar as dependências necessárias.

@@ -1,24 +1,46 @@
-<!-- Page Content -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Pessoas</title>
+</head>
+<body>
+    <h1>Lista de Pessoas</h1>
+    <ul>
+        {% for pessoa in pessoas %}
+            <li>{{ pessoa.nome }} - {{ pessoa.idade }} anos</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+
+<!-- Page Content
 <div class="w3-padding-large" id="main">
+  <!-- Livros Section
   <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="livros">
     <div class="livro-container">
-      <div class="title">Lista de pessoas</div>
+      <div class="title">Pessoas cadastradas</div>
       <table id="my-table" class="table table-striped table-bordered table-hover">
         <thead>
           <tr>
-            <th>Nome</th>
-            <th th colspan="2">Quantidade de Livros Emprestados</th>
+            {% if pessoas and pessoas[0] %}
+                {% for key in pessoas[0].keys() %}
+                <th>{{ key }}</th>
+                {% endfor %}
+            {% endif %}
           </tr>
         </thead>
         <tbody>
+          <!-- Exibir os dados 
           {% for pessoa in pessoas %}
-            <tr>
-              <td>{{ pessoa.nome }}</td>
-              <td colspan="2">{{ pessoa.qtd_livros_emprestados }}</td>  <!-- Ocupa duas colunas -->
-            </tr>
+          <tr>
+              {% for value in pessoa.values() %}
+              <td>{{ value }}</td>
+              {% endfor %}
+          </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
-</div>
+</div> -->

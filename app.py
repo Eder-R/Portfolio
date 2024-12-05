@@ -330,9 +330,11 @@ def list_books():
 
 @app.route('/pessoas', methods=['GET'])
 def list_persons():
-    ''' Exibir pessoas em HTML '''
-    pessoas = Pessoa.query.all()  # Consulta todas as pessoas do banco de dados
-    return render_template('listarPessoas.html', pessoas=pessoas)
+    """Listar todas as pessoas cadastradas."""
+    pessoas = Pessoa.query.order_by(Pessoa.nome).all()  # Consulta todas as pessoas do banco de dados
+    pessoas_dict = [pessoa.to_dict() for pessoa in pessoas]  # Converte para JSON
+    print(f'pessoas listadas:\n {pessoas_dict}')  # Exibe no terminal
+    return render_template('listarPessoas.html', pessoas=pessoas_dict)
 
 @app.route('/api/livros', methods=['GET'])
 def api_listar_livros():

@@ -1,0 +1,70 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: LibManager Tests
+
+on:
+  push:
+    branches: [main, alpha]
+  pull_request:
+    branches: [main, alpha]
+    types: [opened, synchronize, reopened, push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: |
+        coverage run -m pytest tests/
+  sonarcloud-scan:
+    runs-on: ubuntu-latest
+    steps:
+      # Passo 1: Fazer checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+      # Passo 2: Configurar o Python
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      # Passo 3: Instalar dependências
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install coverage pytest
+
+      # Passo 4: Executar os testes e gerar o relatório de cobertura
+      - name: Run tests and generate coverage report
+        run: |
+          coverage run -m pytest
+          coverage xml -o coverage.xml  # Gera o arquivo coverage.xml
+
+      - name: SonarQube Scan
+        uses: actions/checkout@v3
+        
+      - name: SonarCloud Scan
+        uses: SonarSource/sonar-scanner-action@v2
+        with:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_SCANNER_OPTS: '-Dsonar.coverageReportPaths=coverage.xml'

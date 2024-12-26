@@ -1,17 +1,13 @@
 import os
 import logging
-from logging.handlers import TimedRotatingFileHandler, RotatingFileHandler
-from datetime import datetime
-from flask_migrate import Migrate
+import pandas as pd
+from datetime import datetime, timezone
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from waitress import serve
-from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-
-# from models.models import db, Livro, LivrosEmprestados, Pessoa
-
-# Carregar variáveis de ambiente do .env
-load_dotenv()
+from sqlalchemy.exc import IntegrityError
+from logging.handlers import RotatingFileHandler
+from waitress import serve
+from flask_migrate import Migrate
 
 host = os.environ.get('HOST', '127.0.0.1')
 port = int(os.environ.get('PORT', 5000))
@@ -21,9 +17,10 @@ database_path = os.path.join(current_directory, 'database', 'libmanager.db')
 
 # Configuração do Flask e do SQLAlchemy
 app = Flask(__name__)
-
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'MUDE_ME')  
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{database_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = 'upload'
 
 # Inicialização do SQLAlchemy e Flask-Migrate
 db = SQLAlchemy(app)
@@ -34,6 +31,9 @@ LOG_DIR = 'logs'  # Diretório onde os logs serão armazenados
 
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
@@ -58,7 +58,6 @@ file_handler.setFormatter(logging.Formatter(
 logger.addHandler(file_handler)
 
 # Modelos
-
 class Livro(db.Model):
     __tablename__ = 'livros'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -77,12 +76,11 @@ class Livro(db.Model):
             'status': self.status,
             'emprestado_para': self.emprestado_para
         }
-
 class Pessoa(db.Model):
     __tablename__ = 'pessoa'
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(255), nullable=False)
-    sala = db.Column(db.String(255), nullable=False)
+    sala = db.Column(db.String(255), nullable=False, default='Indefinido')
     matricula = db.Column(db.String(255))
     role = db.Column(db.String(50), nullable=False, default="Aluno")
 
@@ -94,7 +92,6 @@ class Pessoa(db.Model):
             'matricula': self.matricula,
             'role': self.role
         }
-
 class LivrosEmprestados(db.Model):
     __tablename__ = 'livros_emprestados'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -119,6 +116,11 @@ class LivrosEmprestados(db.Model):
         }
 
 # Demais rotas e funções aqui...
+@app.route("/index")
+def index():
+    ''' Rota para testes '''
+    return redirect('/')
+
 @app.route('/', methods=['GET'])
 def listar_livros():
     '''Listar livros e pessoas conforme os filtros'''
@@ -210,7 +212,22 @@ def add_book():
         genero = request.form['genero']
         status = request.form.get('status') == 'on'  # Verifica o status
 
-        novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status)
+        # Se o livro está emprestado, verifique a pessoa
+        emprestado_para = request.form.get('borrower') if status else None
+        pessoa = None
+        
+        # Verifique se a pessoa já está registrada
+        if emprestado_para:
+            pessoa = Pessoa.query.filter_by(nome=emprestado_para).first()
+            if not pessoa:
+                # Cadastra a nova pessoa se não existir
+                pessoa = Pessoa(nome=emprestado_para)
+                db.session.add(pessoa)
+                db.session.commit()
+                print(f"ID da nova pessoa: {pessoa.id}")  # Adicione esta linha para depuração
+        
+
+        novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status, emprestado_para=pessoa.nome if pessoa else None)
         db.session.add(novo_livro)
         db.session.commit()
         print(f"ID do novo livro: {novo_livro.id}")  # Adicione esta linha para depuração
@@ -225,11 +242,25 @@ def edit_book(id):
         livro.autor = request.form['autor']
         livro.genero = request.form['genero']
         livro.status = request.form.get('status') == 'on'
-        livro.emprestado_para = request.form['emprestado_para'] if livro.status else None
+        # Verifique se o livro foi marcado como emprestado
+        emprestado_para = request.form.get('emprestado_para') if livro.status else None
+        pessoa = None
+        
+        if emprestado_para:
+            pessoa = Pessoa.query.filter_by(nome=emprestado_para).first()
+            if not pessoa:
+                # Cadastrar uma nova pessoa, se não existir
+                pessoa = Pessoa(nome=emprestado_para)
+                db.session.add(pessoa)
+                db.session.commit()
+                print(f"ID da nova pessoa: {pessoa.id}")  # Adicione esta linha para depuração
+                
+        # Atualizar o campo de empréstimo do livro
+        livro.emprestado_para = pessoa.nome if pessoa else None
         db.session.commit()
         flash('Livro atualizado com sucesso')
         return redirect(url_for('listar_livros'))
-    return render_template('_editBook.html', livro=livro)
+    return render_template('editarLivros.html', livro=livro)
 
 @app.route('/delete_book/<int:id>', methods=['POST'])
 def delete_book(id):
@@ -296,6 +327,18 @@ def verificar_devolucao():
 
     return "Verificação de devolução concluída com sucesso!"
 
+@app.route('/livros', methods=['GET'])
+def list_books():
+    ''' Exibir livros em HTML '''
+    livros = Livro.query.all()  # Consulta todos os livros do banco de dados
+    return render_template('listarLivros.html', livros=livros)
+
+@app.route('/pessoas', methods=['GET'])
+def list_persons():
+    ''' Exibir pessoas em HTML '''
+    pessoas = Pessoa.query.all()  # Consulta todas as pessoas do banco de dados
+    return render_template('listarPessoas.html', pessoas=pessoas)
+
 @app.route('/api/livros', methods=['GET'])
 def api_listar_livros():
     '''Listar todos os livros como JSON'''
@@ -339,7 +382,6 @@ def api_add_pessoa():
     db.session.commit()
 
     return jsonify({'message': 'Pessoa adicionada com sucesso!', 'pessoa': nova_pessoa.to_dict()}), 201
-
 
 @app.route('/api/livros/<int:id>', methods=['PUT'])
 def api_update_livro(id):
@@ -388,6 +430,94 @@ def api_delete_pessoa(id):
     db.session.commit()
 
     return jsonify({'message': 'Pessoa excluída com sucesso!'}), 200
+
+def import_xlsx_to_db(file_path):
+    try:
+        # Lê o arquivo .xlsx
+        df = pd.read_excel(file_path)
+        
+        # Remove espaços em branco dos nomes das colunas
+        df.columns = df.columns.str.strip()
+        
+        # Remove colunas vazias ou desnecessárias
+        df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+        
+        # Exibe os nomes das colunas para debug (apagar em produção)
+        print("Colunas após remoção das 'Unnamed':", df.columns.tolist())
+        
+        # Renomeia as colunas para os nomes esperados pelo sistema
+        df = df.rename(columns={
+            'Nome': 'Titulo',       # Mapeia "Nome" para "Titulo"
+            'Autor': 'Autor',
+            'Genero': 'Genero'
+        })
+        
+        # Exibe os nomes das colunas após renomeação para debug (apagar em produção)
+        print("Colunas após renomeação:", df.columns.tolist())
+        
+        # Verifica se as colunas renomeadas estão presentes
+        required_columns = ['Titulo', 'Autor', 'Genero']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise ValueError(f"Colunas ausentes no arquivo: {', '.join(missing_columns)}")
+
+        # Preenche valores NaN em colunas essenciais com valores padrão
+        df['Titulo'] = df['Titulo'].fillna("Título desconhecido")
+        df['Autor'] = df['Autor'].fillna("Desconhecido")
+        df['Genero'] = df['Genero'].fillna("Gênero não especificado")
+
+        # Converte os dados em objetos Livro para inserção no banco
+        for _, row in df.iterrows():
+            novo_livro = Livro(
+                nome=row['Titulo'],
+                autor=row['Autor'],
+                genero=row['Genero'],
+                status=False,          # Define status como False (não emprestado)
+                emprestado_para=None   # Define emprestado_para como None
+            )
+            db.session.add(novo_livro)
+        
+        # Commit para salvar os registros no banco de dados
+        db.session.commit()
+        flash("Livros importados com sucesso!", "success")
+    
+    except IntegrityError as e:
+        db.session.rollback()
+        logger.error(f"Erro ao importar arquivo: {e}")
+        flash(f"Erro ao importar arquivo: {e}", "error")
+    except Exception as e:
+        # Reverte a transação e loga o erro
+        db.session.rollback()
+        logger.error(f"Erro ao importar arquivo: {e}")
+        flash(f"Erro ao importar arquivo: {e}", "error")
+
+# Rota de upload para processar o arquivo .xlsx
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        flash('Nenhum arquivo selecionado', 'error')
+        return redirect(request.url)
+    
+    file = request.files['file']
+    if file.filename == '':
+        flash('Nome do arquivo vazio', 'error')
+        return redirect(request.url)
+    
+    if file and file.filename.endswith('.xlsx'):
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(file_path)
+        
+        try:
+            # Chama a função para importar o arquivo .xlsx para o banco de dados
+            import_xlsx_to_db(file_path)
+            flash('Arquivo importado com sucesso!', 'success')
+        except Exception as e:
+            flash(f'Erro ao importar arquivo: {e}', 'error')
+        
+        return redirect(url_for('listar_livros'))
+    else:
+        flash('Formato de arquivo inválido. Apenas .xlsx é suportado.', 'error')
+        return redirect(request.url)
 
 if __name__ == "__main__":
     with app.app_context():

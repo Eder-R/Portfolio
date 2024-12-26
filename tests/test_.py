@@ -1,6 +1,8 @@
 import sys
 import os
 import unittest
+import tempfile
+from openpyxl import Workbook
 from io import BytesIO
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -12,7 +14,14 @@ class TestApp(unittest.TestCase):
     def setUpClass(cls):
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Banco de dados na memória
-        app.config['SECRET_KEY'] = 'test_secret'
+        app.config['SECRET_KEY'] = 'test_key'
+        app.config['SESSION_TYPE'] = 'filesystem'
+        app.config['UPLOAD_FOLDER'] = 'tmp'
+
+        # Criar o diretório temporário de upload
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'])
+
         cls.client = app.test_client()
 
         with app.app_context():
@@ -50,7 +59,7 @@ class TestApp(unittest.TestCase):
         with app.test_client() as client:
             response = client.post(f'/delete_book/{livro_id}', follow_redirects=True)
             self.assertEqual(response.status_code, 200)
-            deleted_book = Livro.query.get(livro_id)
+            deleted_book = db.session.get(Livro, livro_id)
             self.assertIsNone(deleted_book)
 
     def test_edit_book(self):
@@ -70,7 +79,7 @@ class TestApp(unittest.TestCase):
                 'emprestado_para': 'Updated Borrower'
             }, follow_redirects=True)
             self.assertEqual(response.status_code, 200)
-            updated_book = Livro.query.get(livro_id)
+            updated_book = db.session.get(Livro, livro_id)
             self.assertEqual(updated_book.nome, 'Updated Book')
             self.assertEqual(updated_book.autor, 'Updated Author')
 
@@ -102,17 +111,53 @@ class TestApp(unittest.TestCase):
 
     def test_import_xlsx_to_db(self):
         """Testar a importação de um arquivo XLSX para o banco de dados"""
-        # Simulando um arquivo XLSX em memória
-        xlsx_data = b'PK\x03\x04\x14\x00\x06\x00\x08\x00\x8f\x93\xa0=\x99\xe6#\x00\x00\x00\x00\x00'
-        xlsx_file = BytesIO(xlsx_data)
-        xlsx_file.filename = 'test.xlsx'
-        
-        # Iniciando o contexto de aplicação para o teste
-        with app.app_context():
-            # Garantir que o banco de dados seja configurado
-            db.create_all()  # Cria todas as tabelas, caso não existam
-            import_xlsx_to_db(xlsx_file)
+        # Criar um arquivo .xlsx válido usando openpyxl
+        with tempfile.NamedTemporaryFile(suffix='.xlsx', delete=True) as tmp_xlsx:
+            tmp_xlsx_name = tmp_xlsx.name
 
+        # Criar um arquivo .xlsx com openpyxl
+        wb = Workbook()
+        sheet = wb.active
+        sheet['A1'] = 'Nome'
+        sheet['B1'] = 'Autor'
+        sheet['C1'] = 'Genero'
+        sheet['A2'] = 'Livro Teste'
+        sheet['B2'] = 'Autor Teste'
+        sheet['C2'] = 'Ficção'  # Adicionada a célula para 'Genero'
+        wb.save(tmp_xlsx_name)  # Salva o arquivo .xlsx
+
+        try:
+            # Simular o contexto de requisição para flash
+            with app.test_request_context():
+                # Criar um cliente de teste
+                with app.test_client() as client:
+                    # Realizar o POST com o arquivo real
+                    with open(tmp_xlsx_name, 'rb') as file:
+                        response = client.post('/upload', data={
+                            'file': (file, 'test.xlsx')
+                        })
+
+                    # Verificar se a resposta é um redirecionamento
+                    self.assertEqual(response.status_code, 302)
+
+                    # Verificar as mensagens flash
+                    with client.session_transaction() as sess:
+                        flashes = sess.get('_flashes', [])
+                        self.assertTrue(
+                            any('Erro ao importar arquivo' in f[1] for f in flashes) or
+                            any('Arquivo importado com sucesso!' in f[1] for f in flashes),
+                            "Mensagem flash não encontrada ou incorreta."
+                        )
+
+                    # Verificar se o arquivo foi processado corretamente no banco
+                    livro = Livro.query.filter_by(nome='Livro Teste').first()
+                    self.assertIsNotNone(livro, "Livro não foi importado para o banco.")
+        finally:
+            # Remover o arquivo temporário após o teste
+            try:
+                os.remove(tmp_xlsx_name)
+            except PermissionError as e:
+                print(f"Erro ao remover o arquivo: {e}")
 
 if __name__ == '__main__':
     unittest.main()

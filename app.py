@@ -116,6 +116,11 @@ class LivrosEmprestados(db.Model):
         }
 
 # Demais rotas e funções aqui...
+@app.route("/index")
+def index():
+    ''' Rota para testes '''
+    return redirect('/')
+
 @app.route('/', methods=['GET'])
 def listar_livros():
     '''Listar livros e pessoas conforme os filtros'''

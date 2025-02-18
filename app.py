@@ -4,10 +4,15 @@ import pandas as pd
 from datetime import datetime, timezone
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from models import db, init_app
 from sqlalchemy.exc import IntegrityError
 from logging.handlers import RotatingFileHandler
 from waitress import serve
 from flask_migrate import Migrate
+from models import db, init_app
+from models.livro import Livro
+from models.pessoa import Pessoa
+from models.livros_emprestados import LivrosEmprestados
 
 host = os.environ.get('HOST', '127.0.0.1')
 port = int(os.environ.get('PORT', 5000))
@@ -23,7 +28,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'upload'
 
 # Inicialização do SQLAlchemy e Flask-Migrate
-db = SQLAlchemy(app)
+db = init_app(app)
 migrate = Migrate(app, db)
 
 # Configuração do Logger
@@ -56,64 +61,6 @@ file_handler.setFormatter(logging.Formatter(
     '%(asctime)s %(levelname)s %(name)s : %(message)s'))
 
 logger.addHandler(file_handler)
-
-# Modelos
-class Livro(db.Model):
-    __tablename__ = 'livros'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nome = db.Column(db.String(255), nullable=False)
-    autor = db.Column(db.String(255), nullable=False)
-    genero = db.Column(db.String(255), nullable=False)
-    status = db.Column(db.Boolean(), nullable=True)
-    emprestado_para = db.Column(db.String(255))
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'nome': self.nome,
-            'autor': self.autor,
-            'genero': self.genero,
-            'status': self.status,
-            'emprestado_para': self.emprestado_para
-        }
-class Pessoa(db.Model):
-    __tablename__ = 'pessoa'
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(255), nullable=False)
-    sala = db.Column(db.String(255), nullable=False, default='Indefinido')
-    matricula = db.Column(db.String(255))
-    role = db.Column(db.String(50), nullable=False, default="Aluno")
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'nome': self.nome,
-            'sala': self.sala,
-            'matricula': self.matricula,
-            'role': self.role
-        }
-class LivrosEmprestados(db.Model):
-    __tablename__ = 'livros_emprestados'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    pessoa_id = db.Column(db.Integer, db.ForeignKey(
-        'pessoa.id'), nullable=False)
-    livro_id = db.Column(db.Integer, db.ForeignKey(
-        'livros.id'), nullable=False)
-    data_devolucao = db.Column(
-        db.DateTime, nullable=True, default=datetime.utcnow())
-
-    pessoa = db.relationship('Pessoa', backref=db.backref(
-        'livros_emprestados', lazy=True))
-    livro = db.relationship('Livro', backref=db.backref(
-        'livros_emprestados', lazy=True))
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'pessoa_id': self.pessoa_id,
-            'livro_id': self.livro_id,
-            'data_devolucao': self.data_devolucao.strftime('%Y-%m-%d %H:%M:%S')
-        }
 
 # Demais rotas e funções aqui...
 @app.route("/index")

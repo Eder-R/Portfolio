@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Lista de Pessoas</title>
@@ -11,36 +11,36 @@
         {% endfor %}
     </ul>
 </body>
-</html>
+</html> -->
 
 
-<!-- Page Content
+<!-- Page Content -->
 <div class="w3-padding-large" id="main">
-  <!-- Livros Section
-  <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="livros">
-    <div class="livro-container">
+  <!-- Livros Section -->
+  <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="pessoas">
+    <div class="pessoas-container">
       <div class="title">Pessoas cadastradas</div>
       <table id="my-table" class="table table-striped table-bordered table-hover">
         <thead>
           <tr>
-            {% if pessoas and pessoas[0] %}
-                {% for key in pessoas[0].keys() %}
-                <th>{{ key }}</th>
-                {% endfor %}
-            {% endif %}
+            <th>Nome</th>
+            <th>Sala</th>
+            <th>Matricula</th>
+            <th>Função</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Exibir os dados 
+          <!-- Exibir os dados  -->
           {% for pessoa in pessoas %}
           <tr>
-              {% for value in pessoa.values() %}
-              <td>{{ value }}</td>
-              {% endfor %}
+              <th>{{ pessoa.nome }}</th>
+              <th>{{ pessoa.sala }}</th>
+              <th>{{ pessoa.matricula }}</th>
+              <th>{{ pessoa.role }}</th>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
-</div> -->
+</div>

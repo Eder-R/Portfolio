@@ -62,6 +62,69 @@ file_handler.setFormatter(logging.Formatter(
 
 logger.addHandler(file_handler)
 
+<<<<<<< HEAD
+=======
+# Modelos
+class Livro(db.Model):
+    __tablename__ = 'livros'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nome = db.Column(db.String(255), nullable=False)
+    autor = db.Column(db.String(255), nullable=False)
+    genero = db.Column(db.String(255), nullable=False)
+    status = db.Column(db.Boolean(), nullable=True)  # Status indica se o livro está disponível
+    emprestado_para_id = db.Column(db.Integer, db.ForeignKey('pessoa.id'), nullable=True)  # Chave estrangeira
+
+    emprestado_para = db.relationship('Pessoa', backref=db.backref('livros_emprestados', lazy=True))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'autor': self.autor,
+            'genero': self.genero,
+            'status': self.status,
+            'emprestado_para': self.emprestado_para.nome if self.emprestado_para else None
+        }
+class Pessoa(db.Model):
+    __tablename__ = 'pessoa'
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(255), nullable=False)
+    sala = db.Column(db.String(255), nullable=False, default='Indefinido')
+    matricula = db.Column(db.String(255))
+    role = db.Column(db.String(50), nullable=False, default="Aluno")
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'sala': self.sala,
+            'matricula': self.matricula,
+            'role': self.role
+        }
+class LivrosEmprestados(db.Model):
+    __tablename__ = 'livros_emprestados'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    pessoa_id = db.Column(db.Integer, db.ForeignKey(
+        'pessoa.id'), nullable=False)
+    livro_id = db.Column(db.Integer, db.ForeignKey(
+        'livros.id'), nullable=False)
+    data_devolucao = db.Column(
+        db.DateTime, nullable=True, default=datetime.utcnow)  # Correção aqui
+
+    pessoa = db.relationship('Pessoa', backref=db.backref(
+        'livros_emprestados_pessoa', lazy=True))
+    livro = db.relationship('Livro', backref=db.backref(
+        'livros_emprestados', lazy=True))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'pessoa_id': self.pessoa_id,
+            'livro_id': self.livro_id,
+            'data_devolucao': self.data_devolucao.strftime('%Y-%m-%d %H:%M:%S') if self.data_devolucao else None  # Adicionando verificação
+        }
+
+>>>>>>> d7acc923e393b9689f5058c33f355f8c2a46579e
 # Demais rotas e funções aqui...
 @app.route("/index")
 def index():
@@ -170,16 +233,33 @@ def add_book():
                 # Cadastra a nova pessoa se não existir
                 pessoa = Pessoa(nome=emprestado_para)
                 db.session.add(pessoa)
-                db.session.commit()
-                print(f"ID da nova pessoa: {pessoa.id}")  # Adicione esta linha para depuração
-        
+                db.session.commit()        
 
-        novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status, emprestado_para=pessoa.nome if pessoa else None)
+       # Criação do novo livro
+        novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status, emprestado_para_id=pessoa.id if pessoa else None)
         db.session.add(novo_livro)
         db.session.commit()
-        print(f"ID do novo livro: {novo_livro.id}")  # Adicione esta linha para depuração
-
         return redirect(url_for('cadastro_livros'))
+
+@app.route('/emprestar_livro/<int:livro_id>/<int:pessoa_id>', methods=['POST'])
+def emprestar_livro(livro_id, pessoa_id):
+    livro = Livro.query.get_or_404(livro_id)
+    pessoa = Pessoa.query.get_or_404(pessoa_id)
+    
+    # Se o livro não está emprestado, empresta
+    if livro.status is True:  # O livro está disponível
+        livro.status = False  # Livro agora está emprestado
+        livro.emprestado_para_id = pessoa.id
+        
+        # Registrar o empréstimo na tabela de LivrosEmprestados
+        emprestimo = LivrosEmprestados(livro_id=livro.id, pessoa_id=pessoa.id, data_devolucao=None)
+        db.session.add(emprestimo)
+        db.session.commit()
+        flash('Livro emprestado com sucesso', 'success')
+    else:
+        flash('Livro já está emprestado', 'error')
+
+    return redirect(url_for('listar_livros'))
 
 @app.route('/edit_book/<int:id>', methods=['GET', 'POST'])
 def edit_book(id):
@@ -265,10 +345,10 @@ def verificar_devolucao():
     livros_emprestados = LivrosEmprestados.query.all()
 
     for emprestimo in livros_emprestados:
-        if emprestimo.data_devolucao < datetime.utcnow():
+        if emprestimo.data_devolucao and emprestimo.data_devolucao < datetime.utcnow():
             # Livro está atrasado, atualizar o status
             livro = Livro.query.get(emprestimo.livro_id)
-            livro.status = False  # Atualize conforme necessário
+            livro.status = True  # Livro está disponível após devolução
 
     db.session.commit()
 
@@ -290,27 +370,41 @@ def list_persons():
 
 @app.route('/api/livros', methods=['GET'])
 def api_listar_livros():
-    '''Listar todos os livros como JSON'''
-    livros = Livro.query.all()
-    livros_dict = [livro.to_dict() for livro in livros]  # Converte para dicionário
+    '''Listar todos os livros como JSON com paginação'''
+    page = request.args.get('page', default=1, type=int)
+    limit = request.args.get('limit', default=10, type=int)
+    offset = (page - 1) * limit
+
+    livros = Livro.query.offset(offset).limit(limit).all()
+    livros_dict = [livro.to_dict() for livro in livros]  
     return jsonify(livros=livros_dict), 200
 
 @app.route('/api/pessoas', methods=['GET'])
 def api_listar_pessoas():
-    '''Listar todas as pessoas como JSON'''
-    pessoas = Pessoa.query.all()
-    pessoas_dict = [pessoa.to_dict() for pessoa in pessoas]  # Converte para dicionário
+    '''Listar todas as pessoas como JSON com paginação'''
+    page = request.args.get('page', default=1, type=int)
+    limit = request.args.get('limit', default=10, type=int)
+    offset = (page - 1) * limit
+
+    pessoas = Pessoa.query.offset(offset).limit(limit).all()
+    pessoas_dict = [pessoa.to_dict() for pessoa in pessoas]
     return jsonify(pessoas=pessoas_dict), 200
 
 @app.route('/api/livros', methods=['POST'])
 def api_add_livro():
     '''Adicionar um novo livro via API'''
     data = request.json
+
+    # Validação dos campos
     nome = data.get('nome')
     autor = data.get('autor')
     genero = data.get('genero')
-    status = data.get('status', True)
     
+    if not nome or not autor or not genero:
+        return jsonify({'message': 'Nome, Autor e Gênero são obrigatórios!'}), 400
+    
+    status = data.get('status', True)
+
     novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status)
     db.session.add(novo_livro)
     db.session.commit()
@@ -324,7 +418,11 @@ def api_add_pessoa():
     nome = data.get('nome')
     sala = data.get('sala')
     matricula = data.get('matricula')
-    role = data.get('role', 'Aluno')  # Papel padrão é Aluno
+    
+    if not nome or not sala or not matricula:
+        return jsonify({'message': 'Nome, Sala e Matrícula são obrigatórios!'}), 400
+    
+    role = data.get('role', 'Aluno')  # Papel padrão é 'Aluno'
     
     nova_pessoa = Pessoa(nome=nome, sala=sala, matricula=matricula, role=role)
     db.session.add(nova_pessoa)
@@ -338,14 +436,25 @@ def api_update_livro(id):
     livro = Livro.query.get_or_404(id)
     data = request.json
 
+    # Atualizando os campos
     livro.nome = data.get('nome', livro.nome)
     livro.autor = data.get('autor', livro.autor)
     livro.genero = data.get('genero', livro.genero)
     livro.status = data.get('status', livro.status)
 
     db.session.commit()
-
-    return jsonify({'message': 'Livro atualizado com sucesso!', 'livro': livro.to_dict()}), 200
+    
+    # Retornando uma resposta adequada
+    return jsonify({
+        'message': 'Livro atualizado com sucesso!',
+        'livro': {
+            'id': livro.id,
+            'nome': livro.nome,
+            'autor': livro.autor,
+            'genero': livro.genero,
+            'status': livro.status
+        }
+    }), 200
 
 @app.route('/api/pessoas/<int:id>', methods=['PUT'])
 def api_update_pessoa(id):
@@ -365,7 +474,10 @@ def api_update_pessoa(id):
 @app.route('/api/livros/<int:id>', methods=['DELETE'])
 def api_delete_livro(id):
     '''Excluir um livro via API'''
-    livro = Livro.query.get_or_404(id)
+    livro = Livro.query.get(id)
+    if not livro:
+        return jsonify({'message': 'Livro não encontrado!'}), 404
+
     db.session.delete(livro)
     db.session.commit()
 
@@ -374,11 +486,15 @@ def api_delete_livro(id):
 @app.route('/api/pessoas/<int:id>', methods=['DELETE'])
 def api_delete_pessoa(id):
     '''Excluir uma pessoa via API'''
-    pessoa = Pessoa.query.get_or_404(id)
+    pessoa = Pessoa.query.get(id)
+    if not pessoa:
+        return jsonify({'message': 'Pessoa não encontrada!'}), 404
+
     db.session.delete(pessoa)
     db.session.commit()
 
     return jsonify({'message': 'Pessoa excluída com sucesso!'}), 200
+
 
 def import_xlsx_to_db(file_path):
     try:

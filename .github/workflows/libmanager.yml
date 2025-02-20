@@ -8,7 +8,7 @@ on:
     branches: [main, alpha]
   pull_request:
     branches: [main, alpha]
-    types: [opened, synchronize, reopened, push, pull_request]
+    types: [opened, synchronize, reopened]
 
 jobs:
   test:
@@ -60,7 +60,7 @@ jobs:
 
       - name: SonarQube Scan
         uses: actions/checkout@v3
-        
+
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         with:

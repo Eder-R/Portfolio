@@ -1,13 +1,11 @@
 import os
 import logging
-import pandas as pd
-from datetime import datetime, timezone
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from models import db, init_app
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 from logging.handlers import RotatingFileHandler
 from waitress import serve
+import pandas as pd
 from flask_migrate import Migrate
 from models import db, init_app
 from models.livro import Livro
@@ -62,69 +60,6 @@ file_handler.setFormatter(logging.Formatter(
 
 logger.addHandler(file_handler)
 
-<<<<<<< HEAD
-=======
-# Modelos
-class Livro(db.Model):
-    __tablename__ = 'livros'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nome = db.Column(db.String(255), nullable=False)
-    autor = db.Column(db.String(255), nullable=False)
-    genero = db.Column(db.String(255), nullable=False)
-    status = db.Column(db.Boolean(), nullable=True)  # Status indica se o livro está disponível
-    emprestado_para_id = db.Column(db.Integer, db.ForeignKey('pessoa.id'), nullable=True)  # Chave estrangeira
-
-    emprestado_para = db.relationship('Pessoa', backref=db.backref('livros_emprestados', lazy=True))
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'nome': self.nome,
-            'autor': self.autor,
-            'genero': self.genero,
-            'status': self.status,
-            'emprestado_para': self.emprestado_para.nome if self.emprestado_para else None
-        }
-class Pessoa(db.Model):
-    __tablename__ = 'pessoa'
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(255), nullable=False)
-    sala = db.Column(db.String(255), nullable=False, default='Indefinido')
-    matricula = db.Column(db.String(255))
-    role = db.Column(db.String(50), nullable=False, default="Aluno")
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'nome': self.nome,
-            'sala': self.sala,
-            'matricula': self.matricula,
-            'role': self.role
-        }
-class LivrosEmprestados(db.Model):
-    __tablename__ = 'livros_emprestados'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    pessoa_id = db.Column(db.Integer, db.ForeignKey(
-        'pessoa.id'), nullable=False)
-    livro_id = db.Column(db.Integer, db.ForeignKey(
-        'livros.id'), nullable=False)
-    data_devolucao = db.Column(
-        db.DateTime, nullable=True, default=datetime.utcnow)  # Correção aqui
-
-    pessoa = db.relationship('Pessoa', backref=db.backref(
-        'livros_emprestados_pessoa', lazy=True))
-    livro = db.relationship('Livro', backref=db.backref(
-        'livros_emprestados', lazy=True))
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'pessoa_id': self.pessoa_id,
-            'livro_id': self.livro_id,
-            'data_devolucao': self.data_devolucao.strftime('%Y-%m-%d %H:%M:%S') if self.data_devolucao else None  # Adicionando verificação
-        }
-
->>>>>>> d7acc923e393b9689f5058c33f355f8c2a46579e
 # Demais rotas e funções aqui...
 @app.route("/index")
 def index():
@@ -134,22 +69,18 @@ def index():
 @app.route('/', methods=['GET'])
 def listar_livros():
     '''Listar livros e pessoas conforme os filtros'''
-
     # Parâmetros de paginação
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
     offset = (page - 1) * limit
-
     # Parâmetros de filtro para livros
     genero_filtrado = request.args.get('genero', default=None, type=str)
     autor_filtrado = request.args.get('autor', default=None, type=str)
     nome_livro_filtrado = request.args.get('nome_livro', default=None, type=str)
-
     # Parâmetros de filtro para pessoas
     matricula_filtrado = request.args.get('matricula', default=None, type=int)
     sala_filtrado = request.args.get('sala', default=None, type=str)
     nome_pessoa_filtrado = request.args.get('nome_pessoa', default=None, type=str)
-
     # Consultas para livros
     query_livros = Livro.query
     if genero_filtrado:
@@ -158,7 +89,6 @@ def listar_livros():
         query_livros = query_livros.filter_by(autor=autor_filtrado)
     if nome_livro_filtrado:
         query_livros = query_livros.filter(Livro.nome.like(f"%{nome_livro_filtrado}%"))
-
     # Consultas para pessoas
     query_pessoas = Pessoa.query
     if matricula_filtrado:
@@ -167,17 +97,22 @@ def listar_livros():
         query_pessoas = query_pessoas.filter_by(sala=sala_filtrado)
     if nome_pessoa_filtrado:
         query_pessoas = query_pessoas.filter(Pessoa.nome.like(f"%{nome_pessoa_filtrado}%"))
-
     # Aplicar paginação
     livros = query_livros.order_by(Livro.nome).offset(offset).limit(limit).all()
     pessoas = query_pessoas.order_by(Pessoa.nome).offset(offset).limit(limit).all()
-
     # Dados auxiliares
     autores = get_authors()
     salas = get_salas()
-
     # Renderiza ambos os dados no template
-    return render_template('index.html', livros=livros, pessoas=pessoas, page=page, limit=limit, autores=autores, salas=salas)
+    return render_template(
+        'index.html',
+        livros=livros,
+        pessoas=pessoas,
+        page=page,
+        limit=limit,
+        autores=autores,
+        salas=salas
+    )
 
 def get_authors():
     '''Função para pegar todos os autores'''
@@ -228,24 +163,29 @@ def add_book():
         
         # Verifique se a pessoa já está registrada
         if emprestado_para:
-            pessoa = Pessoa.query.filter_by(nome=emprestado_para).first()
+            pessoa = Pessoa.query.filter_by(
+                    nome=emprestado_para
+                ).first()
             if not pessoa:
                 # Cadastra a nova pessoa se não existir
                 pessoa = Pessoa(nome=emprestado_para)
                 db.session.add(pessoa)
-                db.session.commit()        
+                db.session.commit()
 
        # Criação do novo livro
-        novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status, emprestado_para_id=pessoa.id if pessoa else None)
+        novo_livro = Livro(nome=nome, autor=autor, genero=genero, status=status, emprestado_para=pessoa.id if pessoa else None)
         db.session.add(novo_livro)
         db.session.commit()
-        return redirect(url_for('cadastro_livros'))
+        return redirect(url_for('index'))
 
 @app.route('/emprestar_livro/<int:livro_id>/<int:pessoa_id>', methods=['POST'])
 def emprestar_livro(livro_id, pessoa_id):
-    livro = Livro.query.get_or_404(livro_id)
-    pessoa = Pessoa.query.get_or_404(pessoa_id)
-    
+    livro = db.session.get(Livro, livro_id)
+    pessoa = db.session.get(Pessoa, pessoa_id)
+    if not livro:
+        abort(404, description="Livro não encontrado")
+    if not pessoa:
+        abort(404, description="Pessoa não encontrada")
     # Se o livro não está emprestado, empresta
     if livro.status is True:  # O livro está disponível
         livro.status = False  # Livro agora está emprestado
@@ -263,7 +203,7 @@ def emprestar_livro(livro_id, pessoa_id):
 
 @app.route('/edit_book/<int:id>', methods=['GET', 'POST'])
 def edit_book(id):
-    livro = Livro.query.get(id)
+    livro = db.session.get(Livro, id)
     if request.method == 'POST':
         livro.nome = request.form['nome']
         livro.autor = request.form['autor']
@@ -301,7 +241,7 @@ def delete_book(id):
 @app.route('/delete_person/<int:id>', methods=['POST'])
 def delete_person(id):
     ''' Apagar pessoa '''
-    pessoa = Pessoa.query.get(id)
+    pessoa = db.session.get(Pessoa, id)
     db.session.delete(pessoa)
     db.session.commit()
     flash('Pessoa apagada com sucesso')
@@ -327,6 +267,25 @@ def add_people():
         print(f"ID da pessoa: {nova_pessoa.id}")  # Adicione esta linha para depuração
 
         return redirect(url_for('cadastro_pessoa'))
+
+@app.route('/edit_client/<int:id>', methods=['GET', 'POST'])
+def edit_client(id):
+    pessoa = db.session.get(Pessoa, id)
+    page = 1 
+    if not pessoa:
+        flash('Cliente não encontrado', 'error')
+        return redirect(url_for('listar_clientes'))
+    if request.method == 'POST':
+        pessoa.nome = request.form['nome']
+        pessoa.sala = request.form['sala']
+        pessoa.matricula = request.form['matricula']
+        pessoa.role = request.form['role']
+        
+        db.session.commit()
+        flash('Cliente atualizado com sucesso', 'success')
+        return redirect(url_for('listar_livros'))
+    
+    return render_template('editarClients.html', pessoa=pessoa)
 
 def get_salas():
     '''Função para pegar todos os autores'''

@@ -1,6 +1,6 @@
 <!-- Page Content -->
 <div class="w3-padding-large" id="main">
-  <!--  -->
+  <!-- Clientes Section -->
   <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="clientes">
     <div class="pessoa-container">
        <div class="title">Pessoas</div>
@@ -10,7 +10,8 @@
             <th scope="col">Nome</th>
             <th scope="col">Sala</th>
             <th scope="col">Matricula</th>
-            <th scope="col">Responsavel</th>
+            <th scope="col">Responsável</th>
+            <th scope="col">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -25,24 +26,21 @@
             {% else %}
             <td>Não</td>
             {% endif %}
+            <td>
+              <a href="{{ url_for('edit_client', id=pessoa.id) }}">Editar</a>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
     <div class="pagination" id="pagination">
-
       <a class="w3-button w3-blue w3-padding-large w3-section" id="redirect-button" href="{{ url_for('cadastro_pessoa') }}">
           Cadastrar Nova Pessoa
       </a>
 
-      <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page-1) }}">Página
-        Anterior</a>
-      <a class="w3-button w3-blue w3-padding-large w3-section"
-        href="{{ url_for('listar_livros', page=page+1) }}">Próxima Página</a>
-
+      <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page-1) }}">Página Anterior</a>
+      <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page+1) }}">Próxima Página</a>
     </div>
   </div>
-</div>
-
 </div>

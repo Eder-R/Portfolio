@@ -46,13 +46,13 @@
             <td>{{ livro.genero }}</td>
             <td>
               {% if livro.status %}
-              {% if livro.emprestado_para %}
-              {{ livro.emprestado_para }}
+                {% if livro.emprestado_para %}
+                  {{ livro.emprestado_para.nome }}
+                {% else %}
+                Empréstimo registrado, mas não disponível
+                {% endif %}
               {% else %}
-              Empréstimo registrado, mas não disponível
-              {% endif %}
-              {% else %}
-              Não emprestado
+                Não emprestado
               {% endif %}
             </td>
             <td>

@@ -52,20 +52,27 @@ jobs:
           pip install -r requirements.txt
           pip install coverage pytest
 
-      - name: Check if coverage.xml exists
-        run: |
-          ls -la ./coverage.xml
-          cat ./coverage.xml
-     
-
+      # Passo 4: Executar testes e gerar relatório de cobertura
       - name: Run tests and generate coverage report
         run: |
           coverage run -m pytest
           coverage xml -i  # O parâmetro "-i" ignora caminhos absolutos no coverage.xml
 
+      # Passo 5: Verificar se coverage.xml foi gerado corretamente
       - name: Verify coverage.xml exists
-        run: ls -la coverage.xml
+        run: |
+          ls -la coverage.xml
+          cat coverage.xml | head -n 20  # Exibe apenas as primeiras 20 linhas
 
+      # Passo 6: Corrigir caminho da origem caso esteja no formato do Windows
+      - name: Fix coverage paths for Linux
+        run: sed -i 's#C:\\Users\\eder.filho\\Downloads\\PROJETOS_PESSOAIS\\Portfolio#/github/workspace#g' coverage.xml
+
+      # Passo 7: Verificar se a correção foi aplicada
+      - name: Verify fixed coverage.xml
+        run: cat coverage.xml | head -n 20  # Verificar se a substituição foi feita
+
+      # Passo 8: Rodar análise do SonarCloud
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v3
         env:

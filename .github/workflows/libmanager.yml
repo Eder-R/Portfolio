@@ -1,5 +1,4 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
 name: LibManager Tests
 
@@ -31,51 +30,6 @@ jobs:
       run: |
         coverage run -m pytest tests/
 
-  sonarcloud-scan:
-    runs-on: ubuntu-latest
-    steps:
-      # Passo 1: Fazer checkout do código
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
-      # Passo 2: Configurar o Python
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-
-      # Passo 3: Instalar dependências
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install coverage pytest
-
-      # Passo 4: Executar testes e gerar relatório de cobertura
-      - name: Run tests and generate coverage report
-        run: |
-          coverage run -m pytest
-          coverage xml -i  # O parâmetro "-i" ignora caminhos absolutos no coverage.xml
-
-      # Passo 5: Verificar se coverage.xml foi gerado corretamente
-      - name: Verify coverage.xml exists
-        run: |
-          ls -la coverage.xml
-          cat coverage.xml | head -n 20  # Exibe apenas as primeiras 20 linhas
-
-      # Passo 6: Corrigir caminho da origem caso esteja no formato do Windows
-      - name: Fix coverage paths for Linux
-        run: sed -i 's#C:\\Users\\eder.filho\\Downloads\\PROJETOS_PESSOAIS\\Portfolio#/github/workspace#g' coverage.xml
-
-      # Passo 7: Verificar se a correção foi aplicada
-      - name: Verify fixed coverage.xml
-        run: cat coverage.xml | head -n 20  # Verificar se a substituição foi feita
-
-      # Passo 8: Rodar análise do SonarCloud
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@v3
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_SCANNER_OPTS: '-Dsonar.coverageReportPaths=./coverage.xml'
+    - name: Generate coverage report
+      run: |
+        coverage report

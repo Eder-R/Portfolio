@@ -1,163 +1,127 @@
+import pytest
+from flask import url_for
 import sys
 import os
-import unittest
-import tempfile
-from openpyxl import Workbook
-from io import BytesIO
+import uuid
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from app import app, db, Livro, import_xlsx_to_db
 
-class TestApp(unittest.TestCase):
+from app import app, session
+from models.models import Livro, Pessoa, LivroEmprestado
 
-    @classmethod
-    def setUpClass(cls):
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Banco de dados na memória
-        app.config['SECRET_KEY'] = 'test_key'
-        app.config['SESSION_TYPE'] = 'filesystem'
-        app.config['UPLOAD_FOLDER'] = 'tmp'
-
-        # Criar o diretório temporário de upload
-        if not os.path.exists(app.config['UPLOAD_FOLDER']):
-            os.makedirs(app.config['UPLOAD_FOLDER'])
-
-        cls.client = app.test_client()
-
+@pytest.fixture(scope="module")
+def test_client():
+    """Cria um cliente de teste para a API"""
+    app.config['TESTING'] = True
+    with app.test_client() as client:
         with app.app_context():
-            db.create_all()
+            yield client
 
-    @classmethod
-    def tearDownClass(cls):
-        with app.app_context():
-            db.session.remove()
-            db.drop_all()
+@pytest.fixture(autouse=True)
+def seed_database():
+    """Garante que existam livros e pessoas no banco antes dos testes."""
+    with app.app_context():
+        session.rollback()  # Evita conflitos anteriores
+        session.query(LivroEmprestado).delete()
+        session.query(Livro).delete()
+        session.query(Pessoa).delete()
 
-    def test_add_book(self):
-        """Testar a adição de um novo livro"""
-        with app.test_client() as client:
-            response = client.post('/add_book', data={
-                'book-title': 'Test Book',
-                'autor': 'Test Author',
-                'genero': 'Test Genre',
-                'status': 'on',
-                'borrower': 'Test Borrower'
-            }, follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-            livro = Livro.query.filter_by(nome='Test Book').first()
-            self.assertIsNotNone(livro)
-            self.assertEqual(livro.autor, 'Test Author')
+        # Criar um livro e uma pessoa
+        livro = Livro(nome="Livro Teste", autor="Autor Teste", genero="Ficção")
+        pessoa = Pessoa(nome="Pessoa Teste", sala="101", matricula="123456")
 
-    def test_delete_book(self):
-        """Testar exclusão de um livro"""
-        with app.app_context():
-            livro = Livro(nome='Delete Book', autor='Delete Author', genero='Delete Genre')
-            db.session.add(livro)
-            db.session.commit()
-            livro_id = livro.id
-        
-        with app.test_client() as client:
-            response = client.post(f'/delete_book/{livro_id}', follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-            deleted_book = db.session.get(Livro, livro_id)
-            self.assertIsNone(deleted_book)
+        session.add(livro)
+        session.add(pessoa)
+        session.commit()
 
-    def test_edit_book(self):
-        """Testar a edição de um livro"""
-        with app.app_context():
-            livro = Livro(nome='Edit Book', autor='Edit Author', genero='Edit Genre')
-            db.session.add(livro)
-            db.session.commit()
-            livro_id = livro.id
 
-        with app.test_client() as client:
-            response = client.post(f'/edit_book/{livro_id}', data={
-                'nome': 'Updated Book',
-                'autor': 'Updated Author',
-                'genero': 'Updated Genre',
-                'status': 'on',
-                'emprestado_para': 'Updated Borrower'
-            }, follow_redirects=True)
-            self.assertEqual(response.status_code, 200)
-            updated_book = db.session.get(Livro, livro_id)
-            self.assertEqual(updated_book.nome, 'Updated Book')
-            self.assertEqual(updated_book.autor, 'Updated Author')
+@pytest.fixture(autouse=True)
+def clean_db():
+    """Limpa o banco antes de cada teste"""
+    with app.app_context():
+        session.rollback()
+        session.query(LivroEmprestado).delete()
+        session.query(Livro).delete()
+        session.query(Pessoa).delete()
+        session.commit()
 
-    def test_get_books_count(self):
-        """Testar a contagem de livros"""
-        with app.app_context():
-            db.session.query(Livro).delete()
-            db.session.commit()
+# ------------------- TESTES API -------------------
 
-            livro = Livro(nome='Count Book', autor='Count Author', genero='Count Genre')
-            db.session.add(livro)
-            db.session.commit()
+def test_api_create_book(test_client):
+    """Testa a criação de um livro via API"""
+    response = test_client.post('/api/livros', json={
+        "nome": "Livro Teste",
+        "autor": "Autor Teste",
+        "genero": "Ficção"
+    })
+    assert response.status_code == 201
+    assert response.get_json()["message"] == "Livro criado com sucesso"
 
-        with app.test_client() as client:
-            response = client.get('/get_books_count')
-            self.assertEqual(response.status_code, 200)
-            data = response.get_json()
-            self.assertEqual(data['count'], 1)
+def test_api_get_livros(test_client):
+    """Testa listagem de livros via API"""
+    response = test_client.get('/api/livros')
+    assert response.status_code == 200
+    livros = response.get_json()
+    assert isinstance(livros, list)
+    assert len(livros) > 0  # Deve existir pelo menos 1 livro cadastrado
 
-            # Testar após a exclusão
-            with app.app_context():
-                db.session.query(Livro).delete()
-                db.session.commit()
-            
-            response = client.get('/get_books_count')
-            self.assertEqual(response.status_code, 200)
-            data = response.get_json()
-            self.assertEqual(data['count'], 0)
+def test_api_update_book(test_client):
+    """Testa atualização de um livro via API"""
+    livro = session.query(Livro).first()
+    assert livro is not None  # Garante que existe um livro antes do teste
+    response = test_client.put(f'/api/livros/{livro.id}', json={
+        "nome": "Livro Atualizado"
+    })
+    assert response.status_code == 200
+    assert response.get_json()["message"] == "Livro atualizado com sucesso"
 
-    def test_import_xlsx_to_db(self):
-        """Testar a importação de um arquivo XLSX para o banco de dados"""
-        # Criar um arquivo .xlsx válido usando openpyxl
-        with tempfile.NamedTemporaryFile(suffix='.xlsx', delete=True) as tmp_xlsx:
-            tmp_xlsx_name = tmp_xlsx.name
+def test_api_delete_book(test_client):
+    """Testa exclusão de um livro via API"""
+    livro = session.query(Livro).first()
+    response = test_client.delete(f'/api/livros/{livro.id}')
+    assert response.status_code == 200
+    assert response.get_json()["message"] == "Livro removido com sucesso"
 
-        # Criar um arquivo .xlsx com openpyxl
-        wb = Workbook()
-        sheet = wb.active
-        sheet['A1'] = 'Nome'
-        sheet['B1'] = 'Autor'
-        sheet['C1'] = 'Genero'
-        sheet['A2'] = 'Livro Teste'
-        sheet['B2'] = 'Autor Teste'
-        sheet['C2'] = 'Ficção'  # Adicionada a célula para 'Genero'
-        wb.save(tmp_xlsx_name)  # Salva o arquivo .xlsx
+def test_api_create_person(test_client):
+    """Testa a criação de uma pessoa via API com matrícula única"""
+    unique_matricula = str(uuid.uuid4())[:8]  # Gera um ID único curto
+    response = test_client.post('/api/pessoas', json={
+        "nome": "Pessoa Teste",
+        "sala": "Sala 101",
+        "matricula": unique_matricula
+    })
+    assert response.status_code == 201
+    assert response.get_json()["message"] == "Pessoa cadastrada com sucesso"
 
-        try:
-            # Simular o contexto de requisição para flash
-            with app.test_request_context():
-                # Criar um cliente de teste
-                with app.test_client() as client:
-                    # Realizar o POST com o arquivo real
-                    with open(tmp_xlsx_name, 'rb') as file:
-                        response = client.post('/upload', data={
-                            'file': (file, 'test.xlsx')
-                        })
+def test_api_get_pessoas(test_client):
+    """Testa listagem de pessoas via API"""
+    response = test_client.get('/api/pessoas')
+    assert response.status_code == 200
+    pessoas = response.get_json()
+    assert isinstance(pessoas, list)
+    assert len(pessoas) > 0  # Deve existir pelo menos 1 pessoa cadastrada
 
-                    # Verificar se a resposta é um redirecionamento
-                    self.assertEqual(response.status_code, 302)
+def test_api_create_emprestimo(test_client):
+    """Testa o empréstimo de um livro via API"""
+    livro = session.query(Livro).first()
+    pessoa = session.query(Pessoa).first()
+    response = test_client.post('/api/emprestimos', json={
+        "livro_id": livro.id,
+        "pessoa_id": pessoa.id
+    })
+    assert response.status_code == 201
+    assert response.get_json()["message"] == "Livro emprestado com sucesso"
 
-                    # Verificar as mensagens flash
-                    with client.session_transaction() as sess:
-                        flashes = sess.get('_flashes', [])
-                        self.assertTrue(
-                            any('Erro ao importar arquivo' in f[1] for f in flashes) or
-                            any('Arquivo importado com sucesso!' in f[1] for f in flashes),
-                            "Mensagem flash não encontrada ou incorreta."
-                        )
+def test_api_devolver_livro(test_client):
+    """Testa devolução de um livro via API garantindo que há um empréstimo ativo"""
+    livro = session.query(Livro).first()
+    pessoa = session.query(Pessoa).first()
+     # Criar empréstimo antes do teste
+    emprestimo = LivroEmprestado(livro_id=livro.id, pessoa_id=pessoa.id)
+    session.add(emprestimo)
+    session.commit()
 
-                    # Verificar se o arquivo foi processado corretamente no banco
-                    livro = Livro.query.filter_by(nome='Livro Teste').first()
-                    self.assertIsNotNone(livro, "Livro não foi importado para o banco.")
-        finally:
-            # Remover o arquivo temporário após o teste
-            try:
-                os.remove(tmp_xlsx_name)
-            except PermissionError as e:
-                print(f"Erro ao remover o arquivo: {e}")
-
-if __name__ == '__main__':
-    unittest.main()
+    response = test_client.put(f'/api/emprestimos/{emprestimo.id}')
+    
+    assert response.status_code == 200
+    assert response.get_json()["message"] == "Livro devolvido com sucesso"

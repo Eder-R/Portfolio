@@ -1,6 +1,5 @@
 env
-__*
-__LibManager
+__LibManager*
 __Py*
 __pycache__/
 _db_sqlite/

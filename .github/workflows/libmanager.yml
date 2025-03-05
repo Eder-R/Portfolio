@@ -1,5 +1,4 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
 name: LibManager Tests
 
@@ -8,7 +7,7 @@ on:
     branches: [main, alpha]
   pull_request:
     branches: [main, alpha]
-    types: [opened, synchronize, reopened, push, pull_request]
+    types: [opened, synchronize, reopened]
 
 jobs:
   test:
@@ -30,15 +29,8 @@ jobs:
     - name: Run tests
       run: |
         coverage run -m pytest tests/
-  sonarcloud-scan:
-    runs-on: ubuntu-latest
-    steps:
-      # Passo 1: Fazer checkout do código
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
+<<<<<<< HEAD
       # Passo 2: Configurar o Python
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
@@ -68,3 +60,8 @@ jobs:
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_SCANNER_OPTS: '-Dsonar.coverageReportPaths=coverage.xml'
+=======
+    - name: Generate coverage report
+      run: |
+        coverage report
+>>>>>>> alpha

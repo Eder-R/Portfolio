@@ -58,9 +58,6 @@ jobs:
           coverage run -m pytest
           coverage xml -o coverage.xml  # Gera o arquivo coverage.xml
 
-      - name: SonarQube Scan
-        uses: actions/checkout@v3
-
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         with:

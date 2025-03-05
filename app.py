@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
+from models import db
 from logging.handlers import RotatingFileHandler
 from models.models import Livro, Pessoa, LivroEmprestado, Base  # Importando os modelos corretos
 

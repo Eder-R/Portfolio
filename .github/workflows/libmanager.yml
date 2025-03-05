@@ -60,9 +60,8 @@ jobs:
 
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v3
-        with:
-          sonarToken: ${{ secrets.SONAR_TOKEN }}
         env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_SCANNER_OPTS: '-Dsonar.coverageReportPaths=coverage.xml'
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

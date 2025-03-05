@@ -52,10 +52,16 @@ jobs:
           pip install -r requirements.txt
           pip install coverage pytest
 
-      # Passo 4: Executar os testes e gerar o relatório de cobertura
+      - name: Check if coverage.xml exists
+        run: |
+          ls -la ./coverage.xml
+          cat ./coverage.xml
+     
+
       - name: Run tests and generate coverage report
         run: |
-           pytest --cov=app --cov-report=xml --cov-report=term
+          coverage run -m pytest
+          coverage xml -i  # O parâmetro "-i" ignora caminhos absolutos no coverage.xml
 
       - name: Verify coverage.xml exists
         run: ls -la coverage.xml

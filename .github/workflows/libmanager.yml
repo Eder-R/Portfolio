@@ -59,7 +59,7 @@ jobs:
           coverage xml -o coverage.xml  # Gera o arquivo coverage.xml
 
       - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@v2
+        uses: sonarsource/sonarcloud-github-action@v3
         with:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any

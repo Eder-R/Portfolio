@@ -2,30 +2,19 @@
   <h1>Alterar Pessoa</h1>
   <form id="pessoaForm" class="filter-form">
     <div class="form-group">
-      <label for="nomePessoa">Nome:</label>
-      <input type="text" id="nomePessoa">
-      <br>
-      
-      <label for="salaPessoa">Sala:</label>
-      <input type="text" id="salaPessoa">
-      <br>
-      
-      <label for="matriculaPessoa">Matrícula:</label>
-      <input type="text" id="matriculaPessoa">
-      <br>
-      
-      <label for="rolePessoa">Função:</label>
-      <select id="rolePessoa">
-        <option value="Aluno">Aluno</option>
-        <option value="Professor">Professor</option>
-        <option value="Administrador">Administrador</option>
-      </select>
-      <br>
-      
-      <button type="button" onclick="alterarDadosPessoa('{{ pessoa.id }}')">Alterar Dados</button>
-      <button type="button" onclick="deletarCliente('{{ pessoa.id }}')">Deletar Registro</button>
+        <label for="nomePessoa">Nome:</label>
+        <input type="text" id="nomePessoa" value="{{ pessoa.nome }}">
+
+        <label for="salaPessoa">Sala:</label>
+        <input type="text" id="salaPessoa" value="{{ pessoa.sala }}">
+
+        <label for="matriculaPessoa">Matrícula:</label>
+        <input type="text" id="matriculaPessoa" value="{{ pessoa.matricula }}">
+
+        <button type="button" onclick="alterarDadosPessoa('{{ pessoa.id }}')">Alterar Dados</button>
     </div>
-  </form>
+</form>
+
 </div>
 
 <script>

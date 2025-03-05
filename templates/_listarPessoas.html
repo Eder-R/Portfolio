@@ -1,46 +1,31 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <title>Lista de Pessoas</title>
-</head>
-<body>
-    <h1>Lista de Pessoas</h1>
-    <ul>
-        {% for pessoa in pessoas %}
-            <li>{{ pessoa.nome }} - {{ pessoa.idade }} anos</li>
-        {% endfor %}
-    </ul>
-</body>
-</html> -->
-
-
-<!-- Page Content -->
 <div class="w3-padding-large" id="main">
-  <!-- Livros Section -->
   <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="pessoas">
     <div class="pessoas-container">
-      <div class="title">Pessoas cadastradas</div>
-      <table id="my-table" class="table table-striped table-bordered table-hover">
+      <div class="title">Pessoas Cadastradas</div>
+      <table class="table table-striped table-bordered">
         <thead>
           <tr>
             <th>Nome</th>
             <th>Sala</th>
-            <th>Matricula</th>
-            <th>Função</th>
+            <th>Matrícula</th>
+            <!-- <th>Ações</th> -->
           </tr>
         </thead>
         <tbody>
-          <!-- Exibir os dados  -->
           {% for pessoa in pessoas %}
           <tr>
-              <th>{{ pessoa.nome }}</th>
-              <th>{{ pessoa.sala }}</th>
-              <th>{{ pessoa.matricula }}</th>
-              <th>{{ pessoa.role }}</th>
+              <td>{{ pessoa.nome }}</td>
+              <td>{{ pessoa.sala }}</td>
+              <td>{{ pessoa.matricula }}</td>
           </tr>
           {% endfor %}
-        </tbody>
+      </tbody>      
       </table>
+      <div class="pagination">
+        <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('cadastro_pessoas') }}">
+            Cadastrar Pessoa
+        </a>
+    </div>
     </div>
   </div>
 </div>

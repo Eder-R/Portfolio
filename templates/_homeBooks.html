@@ -17,47 +17,35 @@
         </thead>
         <form action="/" method="GET" class="filter-form">
           <div class="form-group">
-            <select name="genero" class="form-control" id="generoSelect">
-              <option value="Genero">Genero</option>
-            </select>
+            <input type="text" name="genero" class="form-control" placeholder="Gênero">
           </div>
 
           <div class="form-group">
-            <select name="autor" class="form-control" id="autorSelect">
-              <!-- Exibir os autores em ordem alfabética -->
-              {% for author in autores|sort %}
-              <option value="{{ author }}">{{ author }}</option>
-              {% endfor %}
-            </select>
+            <input type="text" name="autor" class="form-control" placeholder="Autor">
           </div>
 
 
           <div class="form-group">
-            <input type="text" name="nome" class="form-control" placeholder="Titulo">
+            <input type="text" name="nome" class="form-control" placeholder="Título">
           </div>
           <button type="submit" class="btn btn-primary">Filtrar</button>
         </form>
         <tbody>
-          <!-- Exibir os livros -->
           {% for livro in livros %}
           <tr>
-            <th>{{ livro.nome }}</th>
-            <td>{{ livro.autor }}</td>
-            <td>{{ livro.genero }}</td>
-            <td>
-              {% if livro.status %}
-                {% if livro.emprestado_para %}
-                  {{ livro.emprestado_para.nome }}
-                {% else %}
-                Empréstimo registrado, mas não disponível
-                {% endif %}
-              {% else %}
-                Não emprestado
-              {% endif %}
-            </td>
-            <td>
-              <a href="{{ url_for('edit_book', id=livro.id) }}" method="POST">Editar</a>
-            </td>
+              <td>{{ livro.nome }}</td>
+              <td>{{ livro.autor }}</td>
+              <td>{{ livro.genero }}</td>
+              <td>
+                  {% if livro.id in emprestimos %}
+                      <strong>{{ emprestimos[livro.id]['nome'] }}</strong> ({{ emprestimos[livro.id]['sala'] }})
+                  {% else %}
+                      <span style="color: green;">Disponível</span>
+                  {% endif %}
+              </td>
+              <td>
+                  <a href="{{ url_for('update_book', id=livro.id) }}" class="btn btn-sm btn-primary">Editar</a>
+              </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -69,9 +57,9 @@
           Cadastro de Livros
       </a>
 
-      <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('listar_livros', page=page-1) }}">Página Anterior</a>
+      <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('index') }}">Página Anterior</a>
       <a class="w3-button w3-blue w3-padding-large w3-section"
-        href="{{ url_for('listar_livros', page=page+1) }}">Próxima Página</a>
+        href="{{ url_for('index') }}">Próxima Página</a>
 
     </div>
   </div>

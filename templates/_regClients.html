@@ -6,26 +6,20 @@
   </header>
 
   <div class="container">
-    <h1>Registrar Clientes</h1>
-    <form action="{{ url_for('add_people') }}" method="POST" class="filter-form">
-      <div class="form-group">
-        <label for="people-name">Nome da pessoa</label>
-        <input type="text" name="people-name" class="form-control" required>
+    <h1>Registrar Pessoa</h1>
+    <form action="{{ url_for('add_person') }}" method="POST" class="filter-form">
+        <div class="form-group">
+            <label for="people-name">Nome:</label>
+            <input type="text" name="people-name" class="form-control" required>
 
-        <label for="sala">Sala/turma</label>
-        <input type="text" name="sala" id="sala" class="form-control" required>
+            <label for="sala">Sala:</label>
+            <input type="text" name="sala" class="form-control" required>
 
-        <label for="matricula">Matrícula:</label>
-        <input type="text" name="matricula" id="matricula" class="form-control">
+            <label for="matricula">Matrícula:</label>
+            <input type="text" name="matricula" class="form-control" required>
 
-        <label for="role">Tipo de usuário:</label>
-        <select id="role" name="role">
-          <option value="Aluno">Aluno</option>
-          <option value="Professor">Professor</option>
-        </select>
-        <br>
-        <button type="submit" class="w3-button w3-blue w3-padding-large w3-section" >Cadastrar Pessoa</button>
-      </div>
+            <button type="submit" class="w3-button w3-blue w3-padding-large w3-section">Cadastrar Pessoa</button>
+        </div>
     </form>
   </div>
 </div>

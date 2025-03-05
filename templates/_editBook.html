@@ -1,36 +1,20 @@
 <div class="container d-flex justify-content-center align-items-center min-vh-100">
-  <h1>Alterar livro</h1>
-  <form id="bookForm" class="filter-form">
+  <h1>Alterar Livro</h1>
+  <form action="{{ url_for('update_book', id=livro.id) }}" method="POST" class="filter-form">
     <div class="form-group">
-
       <label for="nomeLivro">Nome do Livro:</label>
-      <input type="text" id="nomeLivro">
-      <br>
-      
+      <input type="text" name="nome" id="nomeLivro" value="{{ livro.nome }}" class="form-control">
+
       <label for="autorLivro">Autor do Livro:</label>
-      <input type="text" id="autorLivro">
-      <br>
-      
+      <input type="text" name="autor" id="autorLivro" value="{{ livro.autor }}" class="form-control">
+
       <label for="generoLivro">Gênero do Livro:</label>
-      <input type="text" id="generoLivro">
-      <br>
-      
-      <label for="statusLivro">Status do Livro:</label>
-      <select id="statusLivro" onchange="toggleNomePessoa()">
-        <option value="false">Não Emprestado</option>
-        <option value="true">Emprestado</option>
-      </select>
-      <br>
+      <input type="text" name="genero" id="generoLivro" value="{{ livro.genero }}" class="form-control">
 
-      <!-- Campo adicional oculto inicialmente -->
-      <div id="nomePessoaContainer" style="display: none;">
-        <label for="nomePessoa">Nome da Pessoa que Pegou Emprestado:</label>
-        <input type="text" id="nomePessoa">
-      </div>
+      <label for="emprestado_para">Emprestado para:</label>
+      <input type="text" name="emprestado_para" id="emprestadoPara" value="" class="form-control" placeholder="Nome da Pessoa">
 
-      <button type="button" onclick="alterarDadosLivro('{{ livro.id }}')">Alterar Dados</button>
-
-      <button type="button" onclick="deletarLivro('{{ livro.id }}')">Deletar Livro</button>
+      <button type="submit" class="btn btn-primary">Salvar Alterações</button>
     </div>
   </form>
 </div>

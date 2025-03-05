@@ -14,14 +14,18 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Exibir os livros -->
           {% for livro in livros %}
           <tr>
-            <th>{{ livro.nome }}</th>
-            <td>{{ livro.autor }}</td>
-            <td>{{ livro.genero }}</td>
-            <td>{{ 'Emprestado' if livro.status else 'Disponível' }}</td>
-            <td>{{ livro.emprestado_para if livro.emprestado_para else 'N/A' }}</td>
+              <td>{{ livro.nome }}</td>
+              <td>{{ livro.autor }}</td>
+              <td>{{ livro.genero }}</td>
+              <td>
+                  {% if livro.id in emprestimos %}
+                      <strong>{{ emprestimos[livro.id]['nome'] }}</strong> ({{ emprestimos[livro.id]['sala'] }})
+                  {% else %}
+                      <span style="color: green;">Disponível</span>
+                  {% endif %}
+              </td>
           </tr>
           {% endfor %}
         </tbody>

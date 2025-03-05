@@ -55,8 +55,7 @@ jobs:
       # Passo 4: Executar os testes e gerar o relatório de cobertura
       - name: Run tests and generate coverage report
         run: |
-          coverage run -m pytest
-          coverage xml -o coverage.xml  # Gera o arquivo coverage.xml
+          pytest --cov=app --cov-report=xml:coverage.xml --cov-report=term
 
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v3

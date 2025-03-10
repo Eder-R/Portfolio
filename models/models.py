@@ -12,6 +12,7 @@ class Livro(Base):
     nome = Column(String, nullable=False)
     autor = Column(String, nullable=False)
     genero = Column(String, nullable=False)
+    capa_url = Column(String, nullable=True)  # Novo campo para armazenar a URL da capa
 
 # Modelo da Tabela Pessoas
 class Pessoa(Base):

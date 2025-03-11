@@ -1,5 +1,6 @@
 import os
 import logging
+import requests
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from sqlalchemy import create_engine
@@ -70,8 +71,20 @@ def add_book():
     if not nome or not autor or not genero:
         flash("Todos os campos são obrigatórios!", "error")
         return redirect(url_for('cadastro_livros'))
+    
+    # API para buscar a capa do livro (exemplo usando Open Library)
+    api_url = f"https://openlibrary.org/search.json?title={nome}&author={autor}"
+    response = requests.get(api_url)
+    
+    capa_url = None
+    if response.status_code == 200:
+        data = response.json()
+        if "docs" in data and len(data["docs"]) > 0:
+            cover_id = data["docs"][0].get("cover_i")
+            if cover_id:
+                capa_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
 
-    novo_livro = Livro(nome=nome, autor=autor, genero=genero)
+    novo_livro = Livro(nome=nome, autor=autor, genero=genero, capa_url=capa_url)
     session.add(novo_livro)
     session.commit()
     flash("Livro cadastrado com sucesso!", "success")

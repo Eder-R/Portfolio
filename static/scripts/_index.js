@@ -142,3 +142,48 @@ function edit_book() {
         console.error('Erro:', error);
     });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const banner = document.getElementById("cookie-banner");
+    const acceptButton = document.getElementById("accept-cookies");
+    const privacyLink = document.getElementById("privacyLink");
+
+    // Função para definir um cookie
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            let date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + value + expires + "; path=/";
+    }
+
+    // Função para obter um cookie
+    function getCookie(name) {
+        let nameEQ = name + "=";
+        let ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i].trim();
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length);
+        }
+        return null;
+    }
+
+    // Verifica se o usuário já aceitou os cookies
+    if (!getCookie("aceitou_cookies")) {
+        banner.style.display = "flex";
+    }
+
+    // Evento para aceitar os cookies e esconder o banner
+    acceptButton.addEventListener("click", function () {
+        setCookie("aceitou_cookies", "true", 365);
+        banner.style.display = "none"; // Oculta o banner imediatamente
+    });
+
+    // Evento para exibir um alert ao invés de abrir uma nova página
+    privacyLink.addEventListener("click", function (event) {
+        event.preventDefault(); // Evita que o link abra outra página
+        alert("O LibManager armazena dados localmente apenas para funcionamento do sistema. Nenhum dado é enviado para servidores externos.\n\nOs cookies são usados exclusivamente para melhorar sua experiência, como lembrar suas preferências no sistema.");
+    });
+});

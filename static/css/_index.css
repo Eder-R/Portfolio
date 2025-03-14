@@ -68,6 +68,58 @@ form{
   background-size: cover;
 }
 
+.cookie-banner {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  background: #333;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.cookie-banner p {
+  flex-grow: 1;
+  text-align: left;
+  margin: 0;
+}
+
+.cookie-banner button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-left: 10px;
+}
+
+.cookie-banner a {
+  color: #FFCA28;
+  text-decoration: none;
+  font-weight: bold; /* Deixa "Saiba mais" em negrito */
+  cursor: pointer;
+}
+
+.cookie-banner a :hover{
+  transition: 0.5s;
+  color: #f0f0f0;
+}
+
+#privacyLink {
+  text-decoration: none;
+  color: cadetblue;
+  text-align: center;
+  text-decoration: underline;
+
+}
+
 @media only screen and (max-width: 600px) {
   #main {
     margin-left: 0

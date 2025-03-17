@@ -22,6 +22,13 @@
   {% include '_homeClients.html' %}
   
   {% include '_footer.html' %}
+
+  <div id="cookie-banner" class="cookie-banner w3-content w3-justify">
+    <p>Usamos cookies para armazenar suas preferências e garantir uma melhor experiência no sistema. Nenhum dado é compartilhado. <br>
+        <a id="privacyLink"><strong>Saiba mais</strong></a>.
+    </p>
+    <button id="accept-cookies">Fechar</button>
+  </div>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
     integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
@@ -30,9 +37,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js"
     integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="../static/scripts/_index.js">
-    console.log("Listar todos os dados")
-  </script>
+
+  <script src="{{ url_for('static', filename='scripts/_index.js') }}"></script>
 </body>
 
 </html>

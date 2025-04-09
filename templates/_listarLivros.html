@@ -7,25 +7,25 @@
       <table id="my-table" class="table table-striped table-bordered table-hover">
         <thead>
           <tr>
+            <th>Capa</th>>
             <th>Nome</th>
             <th>Autor</th>
             <th>Genero</th>
-            <th colspan="2" >Emprestado para</th>
           </tr>
         </thead>
         <tbody>
           {% for livro in livros %}
           <tr>
+              <td>
+                {% if livro.capa_url %}
+                  <img src="{{ livro.capa_url }}" alt="Capa do Livro" width="50">
+                {% else %}
+                  <img src="../static/imgs/NotFound.png" alt="Capa Padrão" width="50">
+                {% endif %}
+              </td>
               <td>{{ livro.nome }}</td>
               <td>{{ livro.autor }}</td>
               <td>{{ livro.genero }}</td>
-              <td>
-                  {% if livro.id in emprestimos %}
-                      <strong>{{ emprestimos[livro.id]['nome'] }}</strong> ({{ emprestimos[livro.id]['sala'] }})
-                  {% else %}
-                      <span style="color: green;">Disponível</span>
-                  {% endif %}
-              </td>
           </tr>
           {% endfor %}
         </tbody>

@@ -16,8 +16,9 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'MUDE_ME')
 
 # Configuração do Banco de Dados SQLite
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'lib.db')}"
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATABASE_DIR = os.path.join(BASE_DIR, 'database/', 'lib.db')
+DATABASE_URL = f"sqlite:///{DATABASE_DIR}"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -218,7 +219,26 @@ def upload_books():
     if file.filename.endswith('.xlsx'):
         df = pd.read_excel(file)
         for _, row in df.iterrows():
-            livro = Livro(nome=row['Nome'], autor=row['Autor'], genero=row['Genero'])
+            nome = row['Nome']
+            autor = row['Autor']
+            genero = row['Genero']
+            
+            # Buscar imagem na Open Library
+            capa_url = None
+            try:
+                response = requests.get(
+                    f"https://openlibrary.org/search.json?title={nome}&author={autor}"
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    if "docs" in data and data["docs"]:
+                        cover_id = data["docs"][0].get("cover_i")
+                        if cover_id:
+                            capa_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
+            except Exception as e:
+                print(f"Erro ao buscar capa para '{nome}':", e)
+
+            livro = Livro(nome=nome, autor=autor, genero=genero, capa_url=capa_url)
             session.add(livro)
         session.commit()
         flash('Livros importados com sucesso!', 'success')

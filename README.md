@@ -4,6 +4,7 @@
 
 - [LibManager](#libmanager)
   - [Indice](#indice)
+  - [Visão Geral](#visao-geral)
   - [Definição do problema](#definição-do-problema)
   - [Requisitos](#requisitos)
   - [Caso de Uso](#caso-de-uso)
@@ -11,6 +12,25 @@
     - [**Casos de Uso:**](#casos-de-uso)
   - [ToDo](#todo)
   - [Como Utilizar](#como-utilizar)
+
+---
+# Visão Geral
+
+## **Simplifique sua gestão de livros e pessoas.**  
+
+Com ele, você cadastra, empresta, devolve e organiza tudo em poucos cliques, com uma interface leve e intuitiva.  
+Importe listas inteiras de livros e alunos, gerencie empréstimos e tenha controle total — sem depender de softwares caros ou complicados.  
+O LibManager foi feito para liberar o seu tempo e transformar a organização em um aliado do seu sucesso.
+
+### Conclusão
+
+O LibManager representa mais do que a criação de um sistema: ele é a materialização de um propósito. Um propósito de facilitar a vida de quem precisa gerenciar acervos e registros, de promover o acesso à informação de forma mais estruturada e eficiente, e de transformar, de maneira prática, pequenos ambientes de leitura em grandes centros de conhecimento.
+
+Seja para otimizar a gestão de uma biblioteca, apoiar projetos sociais, dinamizar o fluxo de informações em escolas, ou mesmo estruturar melhor acervos privados, o LibManager é a escolha inteligente.
+
+**Organizar o saber é, antes de tudo, respeitar quem busca aprender. E é exatamente isso que o LibManager entrega.**
+
+---
 
 ## Definição do problema
 

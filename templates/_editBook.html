@@ -1,0 +1,62 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <h1>Alterar Livro</h1>
+  <form action="{{ url_for('update_book', id=livro.id) }}" method="POST" class="filter-form">
+    <div class="form-group">
+      <label for="nomeLivro">Nome do Livro:</label>
+      <input type="text" name="nome" id="nomeLivro" value="{{ livro.nome }}" class="form-control">
+
+      <label for="autorLivro">Autor do Livro:</label>
+      <input type="text" name="autor" id="autorLivro" value="{{ livro.autor }}" class="form-control">
+
+      <label for="generoLivro">Gênero do Livro:</label>
+      <input type="text" name="genero" id="generoLivro" value="{{ livro.genero }}" class="form-control">
+
+      <label for="emprestado_para">Emprestado para:</label>
+      <input type="text" name="emprestado_para" id="emprestadoPara" value="" class="form-control" placeholder="Nome da Pessoa">
+
+      <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function toggleNomePessoa() {
+    const statusLivro = document.getElementById('statusLivro').value;
+    const nomePessoaContainer = document.getElementById('nomePessoaContainer');
+    
+    if (statusLivro === 'true') {
+      nomePessoaContainer.style.display = 'block';
+    } else {
+      nomePessoaContainer.style.display = 'none';
+      document.getElementById('nomePessoa').value = ''; // Limpa o campo ao ocultá-lo
+    }
+  }
+
+  function alterarDadosLivro(id) {
+    const nomeLivro = document.getElementById('nomeLivro').value.trim();
+    const autorLivro = document.getElementById('autorLivro').value.trim();
+    const generoLivro = document.getElementById('generoLivro').value.trim();
+    const statusLivro = document.getElementById('statusLivro').value;
+    const nomePessoa = document.getElementById('nomePessoa').value.trim();
+
+    // Criando um objeto apenas com os campos preenchidos
+    let dadosAtualizados = { status: statusLivro };
+
+    if (nomeLivro) dadosAtualizados.nome = nomeLivro;
+    if (autorLivro) dadosAtualizados.autor = autorLivro;
+    if (generoLivro) dadosAtualizados.genero = generoLivro;
+    if (statusLivro === 'true' && nomePessoa) {
+      dadosAtualizados.nomePessoa = nomePessoa;
+    }
+
+    // Simulação de envio de dados para a API/backend
+    fetch(`/api/livros/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dadosAtualizados)
+    })
+    .then(response => response.json())
+    .then(data => alert("Livro atualizado com sucesso!"))
+    .catch(error => console.error("Erro ao atualizar livro:", error));
+  }
+</script>

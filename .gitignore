@@ -1,0 +1,15 @@
+
+__LibManager*
+__Py*
+__pycache__/
+_db_sqlite/
+.coverage
+.pytest*
+*.log.*
+htmlcov
+htmlcov/*
+build/
+dist/
+tmp/
+tests/
+

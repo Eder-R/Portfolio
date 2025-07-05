@@ -1,0 +1,45 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <h1>Alterar Pessoa</h1>
+  <form id="pessoaForm" class="filter-form">
+    <div class="form-group">
+        <label for="nomePessoa">Nome:</label>
+        <input type="text" id="nomePessoa" value="{{ pessoa.nome }}">
+
+        <label for="salaPessoa">Sala:</label>
+        <input type="text" id="salaPessoa" value="{{ pessoa.sala }}">
+
+        <label for="matriculaPessoa">Matrícula:</label>
+        <input type="text" id="matriculaPessoa" value="{{ pessoa.matricula }}">
+
+        <button type="button" onclick="alterarDadosPessoa('{{ pessoa.id }}')">Alterar Dados</button>
+    </div>
+</form>
+
+</div>
+
+<script>
+  function alterarDadosPessoa(id) {
+    const nomePessoa = document.getElementById('nomePessoa').value.trim();
+    const salaPessoa = document.getElementById('salaPessoa').value.trim();
+    const matriculaPessoa = document.getElementById('matriculaPessoa').value.trim();
+    const rolePessoa = document.getElementById('rolePessoa').value;
+
+    // Criando um objeto apenas com os campos preenchidos
+    let dadosAtualizados = {};
+    
+    if (nomePessoa) dadosAtualizados.nome = nomePessoa;
+    if (salaPessoa) dadosAtualizados.sala = salaPessoa;
+    if (matriculaPessoa) dadosAtualizados.matricula = matriculaPessoa;
+    if (rolePessoa) dadosAtualizados.role = rolePessoa;
+
+    // Simulação de envio de dados para a API/backend
+    fetch(`/api/pessoas/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dadosAtualizados)
+    })
+    .then(response => response.json())
+    .then(data => alert("Pessoa atualizada com sucesso!"))
+    .catch(error => console.error("Erro ao atualizar pessoa:", error));
+  }
+</script>

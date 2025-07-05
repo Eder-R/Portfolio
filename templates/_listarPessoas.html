@@ -1,0 +1,31 @@
+<div class="w3-padding-large" id="main">
+  <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="pessoas">
+    <div class="pessoas-container">
+      <div class="title">Pessoas Cadastradas</div>
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Sala</th>
+            <th>Matrícula</th>
+            <!-- <th>Ações</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          {% for pessoa in pessoas %}
+          <tr>
+              <td>{{ pessoa.nome }}</td>
+              <td>{{ pessoa.sala }}</td>
+              <td>{{ pessoa.matricula }}</td>
+          </tr>
+          {% endfor %}
+      </tbody>      
+      </table>
+      <div class="pagination">
+        <a class="w3-button w3-blue w3-padding-large w3-section" href="{{ url_for('cadastro_pessoas') }}">
+            Cadastrar Pessoa
+        </a>
+    </div>
+    </div>
+  </div>
+</div>

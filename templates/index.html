@@ -38,6 +38,67 @@
     integrity="sha512-WW8/jxkELe2CAiE4LvQfwm1rajOS8PHasCCx+knHG0gBHt8EXxS6T6tJRTGuDQVnluuAvMxWF4j8SNFDKceLFg=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+  <script>
+    document.querySelector('form.mb-4').addEventListener('submit', function(e) {
+      const nome = this.querySelector('input[name="nome"]').value.trim();
+      const autor = this.querySelector('input[name="autor"]').value.trim();
+      const genero = this.querySelector('input[name="genero"]').value.trim();
+
+      const params = new URLSearchParams();
+      if (nome) params.append('nome', nome);
+      if (autor) params.append('autor', autor);
+      if (genero) params.append('genero', genero);
+
+      // Redireciona manualmente com os filtros aplicados
+      window.location.href = "/?" + params.toString();
+
+      e.preventDefault(); // evita o submit padrão
+    });
+  </script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('filtro-form');
+    const nomeInput = form.querySelector('input[name="nome"]');
+    const autorInput = form.querySelector('input[name="autor"]');
+    const generoInput = form.querySelector('input[name="genero"]');
+    const tabela = document.querySelector('table tbody');
+
+    function normalizar(str) {
+      return str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function aplicarFiltro() {
+      const nome = normalizar(nomeInput.value);
+      const autor = normalizar(autorInput.value);
+      const genero = normalizar(generoInput.value);
+
+      tabela.querySelectorAll('tr').forEach(row => {
+        const nomeLivro = normalizar(row.cells[1].innerText);
+        const autorLivro = normalizar(row.cells[2].innerText);
+        const generoLivro = normalizar(row.cells[3].innerText);
+
+        const corresponde =
+          (!nome || nomeLivro.includes(nome)) &&
+          (!autor || autorLivro.includes(autor)) &&
+          (!genero || generoLivro.includes(genero));
+
+        row.style.display = corresponde ? '' : 'none';
+      });
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault(); // Impede recarregamento da página
+      aplicarFiltro();
+    });
+  });
+  </script>
+
+
   <script src="{{ url_for('static', filename='scripts/_index.js') }}"></script>
 </body>
 

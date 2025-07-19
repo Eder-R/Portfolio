@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 
-
 # Define uma convenção de nomenclatura para as constraints
 convention = {
     "ix": "ix_%(column_0_label)s",
@@ -12,6 +11,7 @@ convention = {
 }
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
+from .models import Livro, Pessoa, LivroEmprestado, Base
 
 def init_app(app):
     db.init_app(app)

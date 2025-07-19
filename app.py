@@ -1,24 +1,44 @@
 import os
+import sys
 import logging
 import requests
 import pandas as pd
+from urllib.parse import unquote_plus
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
+import time
 from datetime import datetime
-from models import db
 from logging.handlers import RotatingFileHandler
-from models.models import Livro, Pessoa, LivroEmprestado, Base  # Importando os modelos corretos
+import webview
+import threading
+import webbrowser
+import unicodedata
+
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+from models import Livro, Pessoa, LivroEmprestado, Base, db
+# from models import db
 
 # Configuração do Flask
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'MUDE_ME')
 
 # Configuração do Banco de Dados SQLite
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DATABASE_DIR = os.path.join(BASE_DIR, 'database/', 'lib.db')
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+DATABASE_DIR = os.path.join(BASE_DIR, 'database', 'lib.db')
 DATABASE_URL = f"sqlite:///{DATABASE_DIR}"
+
+# Garante que a pasta 'database/' exista
+os.makedirs(os.path.dirname(DATABASE_DIR), exist_ok=True)
+# Se desejar criar o banco zerado caso não exista:
+if not os.path.exists(DATABASE_DIR):
+    print(">> Criando banco de dados inicial...")
+
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -32,30 +52,97 @@ if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
+# logger.setLevel(logging.ERROR)
+logger.setLevel(logging.DEBUG)
 log_filename = os.path.join(LOG_DIR, 'logs.log.txt')
 file_handler = RotatingFileHandler(log_filename, maxBytes=1024*1024*5, backupCount=5, delay=True)
-file_handler.setLevel(logging.ERROR)
+file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(name)s : %(message)s'))
 logger.addHandler(file_handler)
 
 @app.route('/')
 def index():
-    '''Exibir livros, pessoas e empréstimos'''
-    livros = session.query(Livro).all()
+    # Parâmetros do filtro via GET
+    nome = request.args.get('nome', '').strip()
+    autor = request.args.get('autor', '').strip()
+    genero = request.args.get('genero', '').strip()
+
+    # Query base
+    query = session.query(Livro)
+
+    # Aplica os filtros se preenchidos
+    if nome:
+        query = query.filter(Livro.nome.ilike(f"%{nome}%"))
+    if autor:
+        query = query.filter(Livro.autor.ilike(f"%{autor}%"))
+    if genero and genero != "Genero":
+        query = query.filter(Livro.genero.ilike(f"%{genero}%"))
+
+    livros = query.all()
     pessoas = session.query(Pessoa).all()
 
-    # Consulta para pegar os livros emprestados e associar com nome e sala da pessoa
+    # Consulta empréstimos
     emprestimos = session.query(LivroEmprestado).all()
-    emprestimos_dict = {e.livro_id: {'nome': e.pessoa.nome, 'sala': e.pessoa.sala} for e in emprestimos if e.data_devolucao is None}
+    emprestimos_dict = {
+        e.livro_id: {'nome': e.pessoa.nome, 'sala': e.pessoa.sala}
+        for e in emprestimos if e.data_devolucao is None
+    }
 
-    return render_template("index.html", livros=livros, pessoas=pessoas, emprestimos=emprestimos_dict)
+    # Lista de autores únicos para o filtro
+    autores_unicos = sorted(set(l.autor for l in session.query(Livro).all()))
+    
+    return render_template(
+        "index.html",
+        livros=livros,
+        pessoas=pessoas,
+        emprestimos=emprestimos_dict,
+        autores=autores_unicos,
+        filtro_nome=nome,
+        filtro_autor=autor,
+        filtro_genero=genero
+    )
+###
+# @app.route('/')
+# def index():
+#     '''Exibir livros, pessoas e empréstimos'''
+#     livros = session.query(Livro).all()
+#     pessoas = session.query(Pessoa).all()
+#     emprestimos = session.query(LivroEmprestado).all()
 
+#     # Consulta para pegar os livros emprestados e associar com nome e sala da pessoa
+#     emprestimos_dict = {}
+#     for e in emprestimos:
+#         if e.data_devolucao is None and e.pessoa and e.pessoa.nome:
+#             emprestimos_dict[e.livro_id] = {
+#                 'nome': e.pessoa.nome,
+#                 'sala': e.pessoa.sala
+#             }
+
+#     return render_template("index.html", livros=livros, pessoas=pessoas, emprestimos=emprestimos_dict)
+###
 @app.route('/livros')
 def listar_livros():
-    '''Exibir a lista de livros'''
-    livros = session.query(Livro).all()
-    return render_template("listarLivros.html", livros=livros)
+    '''Exibir a lista de livros com filtros opcionais'''
+    nome = request.args.get('nome', '').strip()
+    autor = request.args.get('autor', '').strip()
+    genero = request.args.get('genero', '').strip()
+
+    query = session.query(Livro)
+
+    if nome:
+        query = query.filter(Livro.nome.ilike(f"%{nome}%"))
+    if autor:
+        query = query.filter(Livro.autor.ilike(f"%{autor}%"))
+    if genero and genero != "Genero":
+        query = query.filter(Livro.genero.ilike(f"%{genero}%"))
+
+    livros = query.all()
+
+    # Carregar os dados de empréstimos
+    emprestimos = session.query(LivroEmprestado).filter_by(data_devolucao=None).all()
+    emprestimos_dict = {e.livro_id: e for e in emprestimos}
+
+    return render_template("listarLivros.html", livros=livros, emprestimos=emprestimos_dict)
 
 @app.route('/pessoas')
 def listar_pessoas():
@@ -379,5 +466,25 @@ def api_devolver_livro(id):
     
     return jsonify({"message": "Livro devolvido com sucesso"})
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+def iniciar_flask():
+    app.run(debug=True, use_reloader=False)
+
+def normalizar(texto):
+    if not texto:
+        return ''
+    texto = unicodedata.normalize('NFKD', texto).encode('ASCII', 'ignore').decode('utf-8')
+    return texto.lower().strip()
+
+if __name__ == '__main__':
+    print(">> Iniciando servidor Flask...")
+    threading.Thread(target=iniciar_flask, daemon=True).start()
+
+    print(">> Aguardando servidor subir...")
+    time.sleep(2)
+
+    print(">> Abrindo no navegador padrão...")
+    webbrowser.open("http://127.0.0.1:5000")
+
+    # Impede que o script se encerre imediatamente
+    while True:
+        time.sleep(1)

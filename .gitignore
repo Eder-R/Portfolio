@@ -1,11 +1,57 @@
-env
-__LibManager*
-__Py*
+# Ambientes virtuais e temporários
+.env
+.env*/
+env/
+venv/
+ENV/
+
+# Python cache
 __pycache__/
+*.py[cod]
+
+# Banco de dados e arquivos locais
+*.db
+*.sqlite3
 _db_sqlite/
+coverage.xml
 .coverage
+.reset_db.py
+
+# Pytest
 .pytest*
 *.log.*
-htmlcov
+
+# Arquivos de log e cobertura
+*.log
+htmlcov/
 htmlcov/*
-.env
+
+# Pastas do projeto
+__LibManager*/
+__Py*/
+
+# Build (PyInstaller, py2app, cx_Freeze, etc)
+build/
+dist/
+*.spec
+*.egg-info/
+*.manifest
+pip-wheel-metadata/
+
+# Node.js (se usar front-end ou Electron)
+node_modules/
+package-lock.json
+
+# Arquivos exportados / imagens / documentação
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.zip
+*.tar.gz
+*.exe
+*.pyz
+*.appimage
+
+# VSCode
+.vscode/

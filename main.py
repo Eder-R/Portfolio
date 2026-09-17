@@ -24,3 +24,4 @@ if __name__ == '__main__':
     window = LibManagerApp()
     window.show()
     sys.exit(qt_app.exec_())
+ 

@@ -9,6 +9,11 @@ body, h1, h2, h3, h4, h5, h6 {
   background-repeat: no-repeat;
 }
 
+.w3-content {
+  max-width: none !important ;
+  width: 100% !important ;
+}
+
 .w3-row-padding img {
   margin-bottom: 12px
 }
@@ -30,7 +35,11 @@ body, h1, h2, h3, h4, h5, h6 {
 }
 
 .pagination{
-  justify-content: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .w3-button a {
@@ -39,7 +48,11 @@ body, h1, h2, h3, h4, h5, h6 {
 }
 
 #main {
-  margin-left: 120px
+  margin-left: 120px;
+    margin-left: 120px;
+  width: calc(100% - 120px);
+  padding: 30px;
+  box-sizing: border-box;
 }
 
 a {
@@ -120,8 +133,58 @@ form{
 
 }
 
+.livro-container, .pessoa-container, .pessoas-container {
+    width: 100%;
+    max-width: none;
+}
+
+.content-section {
+    width: 100%;
+    padding: 30px 40px;
+    box-sizing: border-box;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+}
+
+
 @media only screen and (max-width: 600px) {
   #main {
     margin-left: 0
   }
+}
+
+@media (max-width: 768px) {
+
+    #main {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: relative;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .content-section {
+        padding: 15px;
+    }
+
+    .pagination {
+        flex-direction: column;
+    }
+
+    .pagination a {
+        width: 100%;
+        text-align: center;
+    }
 }

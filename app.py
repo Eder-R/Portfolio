@@ -3,7 +3,7 @@ import logging
 import requests
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
@@ -26,6 +26,14 @@ session = Session()
 # Criar as tabelas no banco de dados, se não existirem
 Base.metadata.create_all(engine)
 
+# Garante no banco que um livro nunca tenha dois empréstimos ativos
+with engine.begin() as conn:
+    conn.execute(text("""
+        CREATE UNIQUE INDEX IF NOT EXISTS uq_emprestimo_ativo
+        ON livros_emprestados (livro_id)
+        WHERE data_devolucao IS NULL
+    """))
+
 # Configuração do Logger
 LOG_DIR = 'logs'
 if not os.path.exists(LOG_DIR):
@@ -38,6 +46,36 @@ file_handler = RotatingFileHandler(log_filename, maxBytes=1024*1024*5, backupCou
 file_handler.setLevel(logging.ERROR)
 file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(name)s : %(message)s'))
 logger.addHandler(file_handler)
+
+class EmprestimoError(Exception):
+    def __init__(self, mensagem, status):
+        super().__init__(mensagem)
+        self.status = status
+
+def registrar_emprestimo(livro_id, pessoa_id):
+    '''Única fonte da regra de empréstimo (HTML e API)'''
+    livro = session.query(Livro).get(livro_id)
+    pessoa = session.query(Pessoa).get(pessoa_id)
+    if not livro or not pessoa:
+        raise EmprestimoError("Livro ou pessoa não encontrados.", 404)
+
+    if session.query(LivroEmprestado).filter_by(livro_id=livro_id, data_devolucao=None).first():
+        raise EmprestimoError("Livro já está emprestado!", 409)
+
+    emprestimo = LivroEmprestado(livro_id=livro.id, pessoa_id=pessoa.id)
+    session.add(emprestimo)
+    try:
+        session.commit()
+    except IntegrityError:  # corrida: o índice do banco barrou
+        session.rollback()
+        raise EmprestimoError("Livro já está emprestado!", 409)
+    return emprestimo
+
+def registrar_devolucao(emprestimo):
+    if emprestimo.data_devolucao is not None:
+        raise EmprestimoError("Este empréstimo já foi devolvido.", 409)
+    emprestimo.data_devolucao = datetime.utcnow()
+    session.commit()
 
 @app.route('/')
 def index():
@@ -115,15 +153,14 @@ def update_book(id):
         pessoa = session.query(Pessoa).filter_by(nome=emprestado_para).first() if emprestado_para else None
 
         if pessoa:
-            # Registrar empréstimo se ainda não estiver emprestado
-            if not session.query(LivroEmprestado).filter_by(livro_id=id, data_devolucao=None).first():
-                emprestimo = LivroEmprestado(livro_id=id, pessoa_id=pessoa.id)
-                session.add(emprestimo)
+            try:
+                registrar_emprestimo(id, pessoa.id)
+            except EmprestimoError:
+                pass  # já emprestado: mantém o comportamento atual (ignora)
         else:
-            # Se o livro estava emprestado e agora está disponível, registrar devolução
             emprestimo = session.query(LivroEmprestado).filter_by(livro_id=id, data_devolucao=None).first()
             if emprestimo:
-                emprestimo.data_devolucao = datetime.utcnow()
+                registrar_devolucao(emprestimo)
 
         session.commit()
         flash("Livro atualizado com sucesso!", "success")
@@ -181,20 +218,11 @@ def delete_person(id):
 @app.route('/emprestar_livro/<int:livro_id>/<int:pessoa_id>', methods=['POST'])
 def emprestar_livro(livro_id, pessoa_id):
     ''' Registrar empréstimo '''
-    livro = session.query(Livro).get(livro_id)
-    pessoa = session.query(Pessoa).get(pessoa_id)
-
-    if not livro or not pessoa:
-        flash("Livro ou pessoa não encontrados.", "error")
+    try:
+        registrar_emprestimo(livro_id, pessoa_id)
+    except EmprestimoError as e:
+        flash(str(e), "error")
         return redirect(url_for('index'))
-
-    if session.query(LivroEmprestado).filter_by(livro_id=livro_id, data_devolucao=None).first():
-        flash("Livro já está emprestado!", "error")
-        return redirect(url_for('index'))
-
-    emprestimo = LivroEmprestado(livro_id=livro.id, pessoa_id=pessoa.id)
-    session.add(emprestimo)
-    session.commit()
     flash("Livro emprestado com sucesso!", "success")
     return redirect(url_for('index'))
 
@@ -202,13 +230,10 @@ def emprestar_livro(livro_id, pessoa_id):
 def devolver_livro(id):
     ''' Registrar devolução '''
     emprestimo = session.query(LivroEmprestado).filter_by(livro_id=id, data_devolucao=None).first()
-
     if not emprestimo:
         flash("Nenhum empréstimo ativo encontrado para este livro.", "error")
         return redirect(url_for('index'))
-
-    emprestimo.data_devolucao = datetime.utcnow()
-    session.commit()
+    registrar_devolucao(emprestimo)
     flash("Livro devolvido com sucesso!", "success")
     return redirect(url_for('index'))
 
@@ -358,13 +383,13 @@ def api_delete_person(id):
 @app.route('/api/emprestimos', methods=['POST'])
 def api_create_emprestimo():
     '''Registra um novo empréstimo'''
-    data = request.get_json()
+    data = request.get_json(silent=True)
     if not data or not all(key in data for key in ["livro_id", "pessoa_id"]):
         return jsonify({"error": "Dados inválidos"}), 400
-
-    emprestimo = LivroEmprestado(livro_id=data["livro_id"], pessoa_id=data["pessoa_id"])
-    session.add(emprestimo)
-    session.commit()
+    try:
+        emprestimo = registrar_emprestimo(data["livro_id"], data["pessoa_id"])
+    except EmprestimoError as e:
+        return jsonify({"error": str(e)}), e.status
     return jsonify({"message": "Livro emprestado com sucesso", "id": emprestimo.id}), 201
 
 @app.route('/api/emprestimos/<int:id>', methods=['PUT'])
@@ -373,10 +398,10 @@ def api_devolver_livro(id):
     emprestimo = session.query(LivroEmprestado).get(id)
     if not emprestimo:
         return jsonify({"error": "Empréstimo não encontrado"}), 404
-
-    emprestimo.data_devolucao = datetime.utcnow()
-    session.commit()
-    
+    try:
+        registrar_devolucao(emprestimo)
+    except EmprestimoError as e:
+        return jsonify({"error": str(e)}), e.status
     return jsonify({"message": "Livro devolvido com sucesso"})
 
 if __name__ == "__main__":
